@@ -1,0 +1,3305 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doshop — عطور ومستحضرات تجميل وعناية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            cairo: ['Cairo', 'sans-serif']
+          },
+          colors: {
+            doshop: {
+              navy: '#0f172a',
+              slate: '#1e293b',
+              orange: '#ff9900',
+              orangeHover: '#e68a00',
+              amber: '#ffedd5',
+              bg: '#eaeded',
+              surface: '#ffffff',
+              ink: '#0f172a',
+              muted: '#565959'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #eaeded;
+      color: #0f172a;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(2px);
+      z-index: 70;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 55;
+      display: none;
+    }
+    .drawer-backdrop.open {
+      display: block;
+    }
+    .slide-drawer {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      z-index: 60;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.22);
+    }
+    .slide-drawer.open {
+      transform: translateX(0);
+    }
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printable-slip-area, #printable-slip-area * {
+        visibility: visible;
+      }
+      #printable-slip-area {
+        position: fixed;
+        inset: 0;
+        background: #ffffff;
+        padding: 24px;
+        z-index: 9999;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Toast Notification -->
+  <div id="doshop-toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[90] hidden bg-doshop-navy text-white px-5 py-2.5 rounded-xl text-xs sm:text-sm font-extrabold shadow-xl border border-doshop-orange/40 flex items-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-doshop-orange"></span>
+    <span id="doshop-toast-msg"></span>
+  </div>
+
+  <!-- Top Announcement Strip -->
+  <div id="announcement-bar" class="bg-doshop-slate text-white text-[11px] sm:text-xs py-1.5 px-4 border-b border-white/10">
+    <div class="max-w-[1440px] mx-auto flex items-center justify-between gap-3">
+      <div id="announcement-text" class="font-bold truncate">
+        عطور ومستحضرات تجميل وعناية أصلية ومختارة • الدفع نقداً عند الاستلام في كافة الولايات التونسية
+      </div>
+      <div class="hidden sm:flex items-center gap-4 shrink-0 text-amber-300 font-bold">
+        <span>أسعار بين 10 و 150 د.ت</span>
+        <span id="announcement-free-ship">شحن مجاني فوق 110.000 د.ت</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global 2-Tier Header -->
+  <header id="store-header" class="bg-doshop-navy text-white sticky top-0 z-40 shadow-md">
+    <!-- Tier 1: Logo + Deliver To + Global Search + Actions -->
+    <div class="max-w-[1440px] mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap lg:flex-nowrap items-center justify-between gap-3">
+      <!-- Logo & Deliver To Tunisia -->
+      <div class="flex items-center gap-3 sm:gap-4 shrink-0">
+        <!-- Clean Doshop Logo with Orange Smile Accent (No .tn anywhere) -->
+        <button type="button" id="doshop-logo-btn" onclick="onBrandLogoClick()" class="flex flex-col items-start select-none focus:outline-none group pr-1" title="Doshop">
+          <div class="flex items-center gap-1.5">
+            <span class="w-8 h-8 rounded-lg bg-doshop-orange text-doshop-navy font-black text-lg flex items-center justify-center shadow-xs group-hover:bg-doshop-orangeHover transition">D</span>
+            <span class="text-xl sm:text-2xl font-black tracking-tight text-white">Doshop</span>
+          </div>
+          <!-- Orange Smile SVG -->
+          <svg class="w-16 h-2.5 text-doshop-orange -mt-0.5 mr-1" viewBox="0 0 80 12" fill="none" aria-hidden="true">
+            <path d="M4 3C24 11 54 11 76 3" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+            <path d="M70 1L77 3.2L73 9" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <!-- Deliver to Tunisia Governorate Selector -->
+        <button type="button" onclick="openDeliveryModal()" class="flex items-center gap-2 text-right px-2.5 py-1.5 rounded-xl hover:bg-white/10 transition border border-transparent hover:border-white/15">
+          <svg class="w-5 h-5 text-doshop-orange shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <div class="leading-tight">
+            <div class="text-[10px] text-slate-300">التوصيل إلى تونس</div>
+            <div id="header-gov-label" class="text-xs font-extrabold text-white">تونس <span class="text-doshop-orange font-bold">(24-48 س)</span></div>
+          </div>
+        </button>
+      </div>
+
+      <!-- Global Search Bar with Category Dropdown & Autocomplete -->
+      <div class="w-full lg:flex-1 max-w-2xl order-3 lg:order-2 relative">
+        <div class="flex items-stretch bg-white rounded-xl overflow-hidden shadow-xs border-2 border-transparent focus-within:border-doshop-orange">
+          <select id="search-category-select" onchange="runStoreFilters()" class="bg-slate-100 text-doshop-ink text-xs font-extrabold px-2.5 sm:px-3 border-l border-slate-200 focus:outline-none max-w-[115px] sm:max-w-[140px]">
+            <option value="all">كل الأقسام</option>
+          </select>
+          <input
+            type="text"
+            id="global-search-input"
+            oninput="handleSearchInput()"
+            onfocus="handleSearchInput()"
+            placeholder="ابحث عن عطور نسائية، رجالية، سيروم، مكياج، عناية..."
+            class="flex-1 px-3 py-2 text-xs sm:text-sm text-doshop-ink bg-white focus:outline-none"
+          />
+          <button type="button" onclick="runStoreFilters(); hideSearchSuggestions();" class="bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black px-4 text-xs sm:text-sm transition">
+            بحث
+          </button>
+        </div>
+        <!-- Instant Autocomplete Dropdown -->
+        <div id="search-autocomplete-box" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-white text-doshop-ink rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden"></div>
+      </div>
+
+      <!-- Account, Orders, Wishlist, Cart -->
+      <div class="flex items-center gap-1.5 sm:gap-2 order-2 lg:order-3 shrink-0">
+        <button type="button" onclick="openAccountModal()" class="px-2.5 py-1.5 rounded-xl hover:bg-white/10 text-right leading-tight transition">
+          <div class="text-[10px] text-slate-300">مرحباً بك</div>
+          <div id="header-account-name" class="text-xs font-extrabold text-white truncate max-w-[90px]">الحساب والقوائم</div>
+        </button>
+
+        <button type="button" onclick="openOrdersModal()" class="hidden sm:block px-2.5 py-1.5 rounded-xl hover:bg-white/10 text-right leading-tight transition">
+          <div class="text-[10px] text-slate-300">المرتجعات</div>
+          <div class="text-xs font-extrabold text-white">والطلبات</div>
+        </button>
+
+        <button type="button" onclick="openWishlistModal()" class="relative px-2.5 py-2 rounded-xl hover:bg-white/10 text-xs font-extrabold flex items-center gap-1.5 transition" title="المفضلة">
+          <svg class="w-4 h-4 text-rose-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+          <span id="wishlist-badge" class="bg-white/15 text-white px-1.5 py-0.2 rounded-full text-[11px] font-black">0</span>
+        </button>
+
+        <button type="button" onclick="toggleCartDrawer(true)" class="px-3 py-2 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black text-xs flex items-center gap-1.5 transition shadow-xs">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+          </svg>
+          <span>السلة</span>
+          <span id="cart-badge" class="bg-doshop-navy text-white px-2 py-0.5 rounded-full text-[11px] font-black">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tier 2: Category & Audience Navigation Bar -->
+    <nav class="bg-doshop-slate border-t border-white/10">
+      <div class="max-w-[1440px] mx-auto px-3 sm:px-6 py-2 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar text-xs">
+        <div id="tier2-category-links" class="flex items-center gap-1.5 shrink-0"></div>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span class="text-slate-300 font-bold ml-1">الفئة:</span>
+          <button type="button" data-audience="all" onclick="setAudienceFilter('all')" class="aud-pill px-3 py-1 rounded-lg font-extrabold bg-doshop-orange text-doshop-navy">الكل</button>
+          <button type="button" data-audience="نساء" onclick="setAudienceFilter('نساء')" class="aud-pill px-3 py-1 rounded-lg font-extrabold bg-white/10 text-white hover:bg-white/20">نساء</button>
+          <button type="button" data-audience="رجال" onclick="setAudienceFilter('رجال')" class="aud-pill px-3 py-1 rounded-lg font-extrabold bg-white/10 text-white hover:bg-white/20">رجال</button>
+          <button type="button" data-audience="للجنسين" onclick="setAudienceFilter('للجنسين')" class="aud-pill px-3 py-1 rounded-lg font-extrabold bg-white/10 text-white hover:bg-white/20">للجنسين</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Maintenance Mode Banner (shown only if Admin enables Maintenance Mode) -->
+  <div id="maintenance-banner" class="hidden bg-amber-100 border-b border-amber-300 text-amber-950 px-4 py-3 text-xs sm:text-sm font-extrabold text-center">
+    المتجر في وضع الصيانة المؤقتة حالياً — بعض عمليات الشراء قد تتأخر مؤقتاً.
+  </div>
+
+  <!-- Main Storefront Content -->
+  <main id="storefront-main" class="flex-1 max-w-[1440px] w-full mx-auto px-3 sm:px-6 py-5 space-y-6">
+
+    <!-- Hero Slider + Overlapping Bento Cards -->
+    <section class="relative">
+      <!-- Hero Carousel -->
+      <div class="relative rounded-2xl overflow-hidden bg-doshop-slate shadow-sm border border-slate-200/80 h-[290px] sm:h-[360px] lg:h-[400px]">
+        <div id="hero-slides-track" class="w-full h-full relative"></div>
+
+        <!-- Prev / Next Slider Controls -->
+        <button type="button" onclick="prevHeroSlide()" aria-label="السابق" class="absolute top-1/2 -translate-y-1/2 right-3 z-20 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-doshop-ink font-black shadow-md flex items-center justify-center transition">
+          ›
+        </button>
+        <button type="button" onclick="nextHeroSlide()" aria-label="التالي" class="absolute top-1/2 -translate-y-1/2 left-3 z-20 w-10 h-10 rounded-full bg-white/85 hover:bg-white text-doshop-ink font-black shadow-md flex items-center justify-center transition">
+          ‹
+        </button>
+
+        <!-- Slider Dots -->
+        <div id="hero-dots" class="absolute bottom-24 sm:bottom-28 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2"></div>
+      </div>
+
+      <!-- Overlapping Bento Cards -->
+      <div id="bento-cards-grid" class="relative z-20 -mt-16 sm:-mt-20 px-2 sm:px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </section>
+
+    <!-- Quick Category Strip -->
+    <section class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-sm sm:text-base font-black text-doshop-ink">تسوق حسب القسم السريع</h2>
+        <button type="button" onclick="resetAllStoreFilters()" class="text-xs font-extrabold text-doshop-orangeHover hover:underline">عرض الكل</button>
+      </div>
+      <div id="quick-category-strip" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3"></div>
+    </section>
+
+    <!-- Flash Deals Section with Live Countdown & Sold Progress -->
+    <section class="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs">
+      <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-slate-100">
+        <div class="flex items-center gap-3">
+          <span class="bg-rose-600 text-white text-xs font-black px-3 py-1 rounded-lg">عروض خاطفة</span>
+          <h2 class="text-base sm:text-lg font-black text-doshop-ink">تخفيضات لفترة محدودة</h2>
+        </div>
+        <div class="flex items-center gap-2 bg-doshop-navy text-white px-3.5 py-1.5 rounded-xl text-xs font-extrabold">
+          <span>ينتهي خلال:</span>
+          <span id="flash-countdown" dir="ltr" class="font-mono text-doshop-orange font-black">04:38:15</span>
+        </div>
+      </div>
+      <div id="flash-deals-row" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+    </section>
+
+    <!-- Sidebar Filters + Full Catalog Grid -->
+    <section id="catalog-section" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      <!-- Left/Right Sidebar Filters (3 cols on lg) -->
+      <aside class="lg:col-span-3 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-2xs space-y-5 lg:sticky lg:top-28">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h2 class="text-sm font-black text-doshop-ink">تصفية المنتجات</h2>
+          <button type="button" onclick="resetAllStoreFilters()" class="text-xs font-extrabold text-doshop-orangeHover hover:underline">إعادة ضبط</button>
+        </div>
+
+        <!-- Category Filter -->
+        <div>
+          <div class="text-xs font-black text-doshop-ink mb-2">القسم</div>
+          <div id="sidebar-category-list" class="space-y-1 text-xs"></div>
+        </div>
+
+        <!-- Target Audience Filter -->
+        <div class="border-t border-slate-100 pt-4">
+          <div class="text-xs font-black text-doshop-ink mb-2">الفئة المستهدفة</div>
+          <div class="grid grid-cols-2 gap-1.5 text-xs">
+            <button type="button" data-aud-side="all" onclick="setAudienceFilter('all')" class="aud-side-btn py-1.5 px-2.5 rounded-xl font-extrabold bg-doshop-orange text-doshop-navy">الكل</button>
+            <button type="button" data-aud-side="نساء" onclick="setAudienceFilter('نساء')" class="aud-side-btn py-1.5 px-2.5 rounded-xl font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200">نساء</button>
+            <button type="button" data-aud-side="رجال" onclick="setAudienceFilter('رجال')" class="aud-side-btn py-1.5 px-2.5 rounded-xl font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200">رجال</button>
+            <button type="button" data-aud-side="للجنسين" onclick="setAudienceFilter('للجنسين')" class="aud-side-btn py-1.5 px-2.5 rounded-xl font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200">للجنسين</button>
+          </div>
+        </div>
+
+        <!-- TND Price Range Filter (10 - 150 TND) -->
+        <div class="border-t border-slate-100 pt-4">
+          <div class="flex items-center justify-between text-xs font-black text-doshop-ink mb-2">
+            <span>السعر بالدينار التونسي</span>
+            <span id="price-max-label" class="text-doshop-orangeHover">حتى 150.000 د.ت</span>
+          </div>
+          <input
+            type="range"
+            id="price-range-slider"
+            min="10"
+            max="150"
+            step="5"
+            value="150"
+            oninput="handlePriceSliderChange(this.value)"
+            class="w-full accent-doshop-orange cursor-pointer"
+          />
+          <div class="flex justify-between text-[11px] font-bold text-slate-400 mt-1">
+            <span>10 د.ت</span>
+            <span>80 د.ت</span>
+            <span>150 د.ت</span>
+          </div>
+        </div>
+
+        <!-- Rating Filter -->
+        <div class="border-t border-slate-100 pt-4">
+          <div class="text-xs font-black text-doshop-ink mb-2">التقييم</div>
+          <div class="space-y-1.5 text-xs">
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+              <input type="radio" name="ratingFilter" value="0" checked onchange="setRatingFilter(this.value)" class="accent-doshop-orange" />
+              <span>جميع التقييمات</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+              <input type="radio" name="ratingFilter" value="4.5" onchange="setRatingFilter(this.value)" class="accent-doshop-orange" />
+              <span>★ 4.5 فأعلى</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer font-bold text-slate-700">
+              <input type="radio" name="ratingFilter" value="4.0" onchange="setRatingFilter(this.value)" class="accent-doshop-orange" />
+              <span>★ 4.0 فأعلى</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Brand Filter -->
+        <div class="border-t border-slate-100 pt-4">
+          <div class="text-xs font-black text-doshop-ink mb-2">العلامة التجارية</div>
+          <select id="brand-filter-select" onchange="runStoreFilters()" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold bg-white focus:outline-none focus:border-doshop-orange">
+            <option value="all">كل الماركات</option>
+          </select>
+        </div>
+
+        <!-- Express Delivery Checkbox -->
+        <div class="border-t border-slate-100 pt-4">
+          <label class="flex items-center gap-2.5 cursor-pointer text-xs font-extrabold text-doshop-ink bg-amber-50/70 p-2.5 rounded-xl border border-amber-200/70">
+            <input type="checkbox" id="express-only-check" onchange="runStoreFilters()" class="w-4 h-4 accent-doshop-orange rounded" />
+            <span>توصيل سريع Express فقط</span>
+          </label>
+        </div>
+      </aside>
+
+      <!-- Main Catalog Column (9 cols on lg) -->
+      <div class="lg:col-span-9 space-y-4">
+        <!-- Toolbar: Result Count + Sort -->
+        <div class="bg-white rounded-2xl p-3.5 sm:px-5 border border-slate-200/80 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm sm:text-base font-black text-doshop-ink">المنتجات المتوفرة</h2>
+            <p id="catalog-results-summary" class="text-xs text-doshop-muted font-bold"></p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="font-extrabold text-slate-600">ترتيب حسب:</span>
+            <select id="catalog-sort-select" onchange="runStoreFilters()" class="border border-slate-300 rounded-xl px-3 py-1.5 font-extrabold bg-white focus:outline-none focus:border-doshop-orange">
+              <option value="popular">الأكثر طلباً</option>
+              <option value="price-asc">السعر: من الأقل إلى الأعلى</option>
+              <option value="price-desc">السعر: من الأعلى إلى الأقل</option>
+              <option value="rating">الأعلى تقييماً</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div id="main-products-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+
+        <!-- Empty State -->
+        <div id="catalog-empty-state" class="hidden bg-white rounded-2xl p-10 text-center border border-slate-200">
+          <p class="text-base font-black text-doshop-ink mb-1">لا توجد منتجات مطابقة للفلاتر الحالية</p>
+          <p class="text-xs text-doshop-muted mb-4">جرّب تعديل السعر أو الفئة أو كلمة البحث.</p>
+          <button type="button" onclick="resetAllStoreFilters()" class="px-4 py-2 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy text-xs font-black transition">
+            إعادة ضبط الفلاتر
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Storefront Footer (No admin buttons or .tn suffix) -->
+  <footer id="store-footer" class="bg-doshop-navy text-slate-300 mt-12">
+    <div class="bg-doshop-slate/80 py-3 text-center">
+      <button type="button" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="text-xs font-extrabold text-white hover:text-doshop-orange transition">
+        العودة إلى الأعلى ↑
+      </button>
+    </div>
+
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-xs">
+      <div class="space-y-2.5">
+        <div class="flex items-center gap-2">
+          <span class="w-7 h-7 rounded-lg bg-doshop-orange text-doshop-navy font-black text-sm flex items-center justify-center">D</span>
+          <span class="text-lg font-black text-white">Doshop</span>
+        </div>
+        <p class="text-slate-400 leading-relaxed">
+          منصة Doshop للعطور ومستحضرات التجميل والعناية بالبشرة للنساء والرجال في تونس بأسعار واقعية بين 10 و150 دينار تونسي.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="text-white font-black text-sm mb-3">حسابك وطلباتك</h3>
+        <ul class="space-y-2 text-slate-400 font-semibold">
+          <li><button type="button" onclick="openAccountModal()" class="hover:text-doshop-orange transition">الحساب والقوائم</button></li>
+          <li><button type="button" onclick="openOrdersModal()" class="hover:text-doshop-orange transition">تتبع الطلبات والمرتجعات</button></li>
+          <li><button type="button" onclick="openWishlistModal()" class="hover:text-doshop-orange transition">قائمة المفضلة</button></li>
+          <li><button type="button" onclick="toggleCartDrawer(true)" class="hover:text-doshop-orange transition">عربة التسوق</button></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="text-white font-black text-sm mb-3">التوصيل في تونس</h3>
+        <p class="text-slate-400 leading-relaxed mb-2">
+          نغطي كافة الولايات التونسية الـ 24 عبر شركات توصيل معتمدة مع إمكانية الدفع نقداً عند الاستلام.
+        </p>
+        <button type="button" onclick="openDeliveryModal()" class="text-doshop-orange font-extrabold hover:underline">
+          اختيار الولاية ومواعيد التوصيل
+        </button>
+      </div>
+
+      <div>
+        <h3 class="text-white font-black text-sm mb-3">ضمان الجودة والأسعار</h3>
+        <ul class="space-y-2 text-slate-400 font-semibold">
+          <li>• أسعار شفافة بالدينار التونسي (10 - 150 د.ت)</li>
+          <li>• معاينة تفاصيل كل منتج والتقييمات قبل الشراء</li>
+          <li>• دفع نقداً عند الاستلام (COD)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-white/10 py-4 px-4 text-center text-xs text-slate-400">
+      © 2026 Doshop — جميع الحقوق محفوظة.
+    </div>
+  </footer>
+
+  <!-- Hidden Admin Dashboard Workspace (Only visible after Admin authentication) -->
+  <section id="admin-workspace" class="hidden min-h-screen bg-[#f1f5f9] text-doshop-ink">
+    <header class="bg-doshop-navy text-white sticky top-0 z-30 border-b border-white/10 shadow-sm">
+      <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-doshop-orange text-doshop-navy font-black text-lg flex items-center justify-center">D</div>
+          <div>
+            <div class="text-sm sm:text-base font-black">لوحة تحكم Doshop</div>
+            <div id="admin-session-info" class="text-[11px] text-slate-300"></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="returnToStorefront()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-extrabold transition">
+            عرض المتجر
+          </button>
+          <button type="button" onclick="logoutAdmin()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold transition">
+            خروج
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <!-- Admin Navigation Tabs -->
+      <div class="bg-white p-2 rounded-2xl border border-slate-200 flex flex-wrap gap-1.5 shadow-2xs">
+        <button type="button" data-atab="overview" onclick="switchAdminTab('overview')" class="admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-doshop-orange text-doshop-navy">نظرة عامة وتحليلات</button>
+        <button type="button" data-atab="orders" onclick="switchAdminTab('orders')" class="admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-700 hover:bg-slate-200">الطلبات والشحن</button>
+        <button type="button" data-atab="products" onclick="switchAdminTab('products')" class="admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-700 hover:bg-slate-200">المنتجات والمخزون</button>
+        <button type="button" data-atab="banners" onclick="switchAdminTab('banners')" class="admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-700 hover:bg-slate-200">البانرات والواجهة</button>
+        <button type="button" data-atab="carriers" onclick="switchAdminTab('carriers')" class="admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-700 hover:bg-slate-200">شركات التوصيل</button>
+        <button type="button" data-atab="admins" onclick="switchAdminTab('admins')" class="admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-700 hover:bg-slate-200">حسابات الأدمن</button>
+        <button type="button" data-atab="settings" onclick="switchAdminTab('settings')" class="admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-700 hover:bg-slate-200">الدفع والشحن والأمان</button>
+      </div>
+
+      <!-- Active Admin Tab Body -->
+      <div id="admin-tab-panel" class="space-y-6"></div>
+    </div>
+  </section>
+
+  <!-- Printable Tunisian Delivery Slip Container -->
+  <div id="printable-slip-area" class="hidden"></div>
+
+  <!-- Cart Slide Drawer -->
+  <div id="cart-backdrop" onclick="toggleCartDrawer(false)" class="drawer-backdrop"></div>
+  <aside id="cart-drawer" class="slide-drawer">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <h2 class="font-black text-base text-doshop-ink">عربة التسوق</h2>
+        <span id="drawer-items-count" class="text-xs font-bold text-slate-500"></span>
+      </div>
+      <button type="button" onclick="toggleCartDrawer(false)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+    </div>
+
+    <div id="cart-drawer-items" class="flex-1 overflow-y-auto p-4 space-y-3"></div>
+
+    <div class="p-4 border-t border-slate-200 bg-slate-50 space-y-3 text-xs">
+      <!-- Coupon Input -->
+      <div class="flex gap-2">
+        <input type="text" id="coupon-code-input" placeholder="كود الخصم (مثال: DOSHOP10)" dir="ltr" class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-left font-mono uppercase bg-white focus:outline-none focus:border-doshop-orange" />
+        <button type="button" onclick="applyCouponCode()" class="px-3.5 py-2 rounded-xl bg-doshop-navy hover:bg-doshop-slate text-white font-extrabold transition">
+          تطبيق
+        </button>
+      </div>
+      <div id="coupon-feedback" class="text-[11px] font-bold hidden"></div>
+
+      <div class="space-y-1.5 pt-1">
+        <div class="flex justify-between text-slate-600">
+          <span>مجموع المنتجات</span>
+          <span id="cart-sub-val" class="font-bold text-doshop-ink">0.000 د.ت</span>
+        </div>
+        <div id="cart-discount-row" class="hidden justify-between text-emerald-700 font-bold">
+          <span>الخصم (<span id="cart-coupon-label"></span>)</span>
+          <span id="cart-discount-val">-0.000 د.ت</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>رسوم التوصيل (<span id="cart-gov-name">تونس</span>)</span>
+          <span id="cart-ship-val" class="font-bold text-doshop-ink">0.000 د.ت</span>
+        </div>
+        <div class="flex justify-between text-sm font-black text-doshop-ink pt-2 border-t border-slate-200">
+          <span>الإجمالي النهائي</span>
+          <span id="cart-total-val" class="text-doshop-orangeHover text-base">0.000 د.ت</span>
+        </div>
+      </div>
+
+      <button type="button" id="open-checkout-btn" onclick="openCheckoutModal()" disabled class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover disabled:opacity-40 text-doshop-navy text-sm font-black transition shadow-xs">
+        إتمام الطلب
+      </button>
+    </div>
+  </aside>
+
+  <!-- Modal: Deliver to Tunisia Governorate Selector -->
+  <div id="delivery-modal" class="modal-overlay" onclick="backdropClose(event, 'delivery-modal')">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 border border-slate-200 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-black text-base text-doshop-ink">اختر الولاية في تونس</h3>
+        <button type="button" onclick="closeModal('delivery-modal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <p class="text-slate-600 leading-relaxed">
+          اختر ولايتك لعرض مدة التوصيل المتوقعة وحساب رسوم الشحن بدقة.
+        </p>
+        <select id="delivery-gov-select" onchange="previewGovernorateDelivery()" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm font-extrabold bg-white focus:outline-none focus:border-doshop-orange"></select>
+        <div id="delivery-gov-info" class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-950 font-bold space-y-1"></div>
+        <button type="button" onclick="confirmGovernorateSelection()" class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy text-sm font-black transition">
+          تأكيد الولاية
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Product Detail & Reviews -->
+  <div id="product-detail-modal" class="modal-overlay" onclick="backdropClose(event, 'product-detail-modal')">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 border border-slate-200 shadow-2xl" onclick="event.stopPropagation()">
+      <div id="product-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Checkout -->
+  <div id="checkout-modal" class="modal-overlay" onclick="backdropClose(event, 'checkout-modal')">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[92vh] overflow-y-auto p-5 sm:p-6 border border-slate-200 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-black text-base text-doshop-ink">إتمام الطلب في تونس</h3>
+        <button type="button" onclick="closeModal('checkout-modal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+      </div>
+
+      <form id="checkout-order-form" onsubmit="submitStoreOrder(event)" class="space-y-3.5 text-xs">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-extrabold mb-1">الاسم الكامل *</label>
+            <input type="text" id="chk-full-name" required placeholder="مثال: سليم بن يوسف" class="w-full border border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-doshop-orange" />
+          </div>
+          <div>
+            <label class="block font-extrabold mb-1">رقم الهاتف (8 أرقام) *</label>
+            <input type="tel" id="chk-phone" required pattern="[0-9]{8}" maxlength="8" placeholder="50123456" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-left font-mono focus:outline-none focus:border-doshop-orange" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-extrabold mb-1">الولاية *</label>
+            <select id="chk-governorate" onchange="refreshCheckoutTotals()" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white font-extrabold focus:outline-none focus:border-doshop-orange"></select>
+          </div>
+          <div>
+            <label class="block font-extrabold mb-1">المعتمدية / المنطقة *</label>
+            <input type="text" id="chk-city" required placeholder="مثال: المرسى / سهلول / باب بحر" class="w-full border border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-doshop-orange" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-extrabold mb-1">العنوان التفصيلي *</label>
+            <input type="text" id="chk-address" required placeholder="الشارع، الحي، رقم المنزل" class="w-full border border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-doshop-orange" />
+          </div>
+          <div>
+            <label class="block font-extrabold mb-1">شركة التوصيل</label>
+            <select id="chk-carrier" onchange="refreshCheckoutTotals()" class="w-full border border-slate-300 rounded-xl px-3 py-2 bg-white font-extrabold focus:outline-none focus:border-doshop-orange"></select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block font-extrabold mb-1.5">طريقة الدفع</label>
+          <div id="chk-payment-methods" class="space-y-2"></div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1.5">
+          <div class="flex justify-between">
+            <span>مجموع المنتجات:</span>
+            <span id="chk-sum-sub" class="font-bold">0.000 د.ت</span>
+          </div>
+          <div id="chk-sum-disc-row" class="hidden justify-between text-emerald-700 font-bold">
+            <span>الخصم:</span>
+            <span id="chk-sum-disc">-0.000 د.ت</span>
+          </div>
+          <div class="flex justify-between">
+            <span>معلوم التوصيل:</span>
+            <span id="chk-sum-ship" class="font-bold">0.000 د.ت</span>
+          </div>
+          <div class="flex justify-between text-sm font-black pt-1.5 border-t border-slate-200">
+            <span>الإجمالي المطلوب:</span>
+            <span id="chk-sum-total" class="text-doshop-orangeHover text-base">0.000 د.ت</span>
+          </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy text-sm font-black transition shadow-xs">
+          تأكيد وإرسال الطلب
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Account & Lists (with discreet admin link at bottom) -->
+  <div id="account-modal" class="modal-overlay" onclick="backdropClose(event, 'account-modal')">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 border border-slate-200 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-black text-base text-doshop-ink">الحساب والقوائم</h3>
+        <button type="button" onclick="closeModal('account-modal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+      </div>
+      <div class="space-y-4 text-xs">
+        <div>
+          <label class="block font-extrabold mb-1">الاسم المعروض للحساب</label>
+          <div class="flex gap-2">
+            <input type="text" id="acc-name-input" placeholder="أدخل اسمك" class="flex-1 border border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-doshop-orange" />
+            <button type="button" onclick="saveAccountProfile()" class="px-4 py-2 rounded-xl bg-doshop-navy text-white font-extrabold">حفظ</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5">
+          <button type="button" onclick="closeModal('account-modal'); openOrdersModal();" class="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 font-extrabold text-right">
+            طلباتي ومرتجعاتي
+          </button>
+          <button type="button" onclick="closeModal('account-modal'); openWishlistModal();" class="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 font-extrabold text-right">
+            قائمة المفضلة
+          </button>
+        </div>
+        <div class="pt-3 border-t border-slate-100 text-center">
+          <button type="button" onclick="openAdminLoginPrompt()" class="text-[11px] text-slate-400 hover:text-slate-600 transition">
+            دخول فريق العمل
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Orders & Returns Tracking -->
+  <div id="orders-modal" class="modal-overlay" onclick="backdropClose(event, 'orders-modal')">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 border border-slate-200 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-black text-base text-doshop-ink">تتبع الطلبات والمرتجعات</h3>
+        <button type="button" onclick="closeModal('orders-modal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+      </div>
+      <div class="space-y-4 text-xs">
+        <form onsubmit="searchOrderByCode(event)" class="flex gap-2">
+          <input type="text" id="track-code-input" required placeholder="أدخل رقم الطلب (مثال: DS-2026-5001)" dir="ltr" class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-left font-mono focus:outline-none focus:border-doshop-orange" />
+          <button type="submit" class="px-4 py-2 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black">تتبع</button>
+        </form>
+        <div id="track-code-result"></div>
+        <div class="pt-2 border-t border-slate-100">
+          <div class="font-black text-doshop-ink mb-2">الطلبات المسجلة</div>
+          <div id="recent-orders-list" class="space-y-2.5 max-h-64 overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Wishlist -->
+  <div id="wishlist-modal" class="modal-overlay" onclick="backdropClose(event, 'wishlist-modal')">
+    <div class="bg-white rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto p-5 sm:p-6 border border-slate-200 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-black text-base text-doshop-ink">قائمة المفضلة</h3>
+        <button type="button" onclick="closeModal('wishlist-modal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+      </div>
+      <div id="wishlist-items-list" class="space-y-3 text-xs"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Admin Passcode Login -->
+  <div id="admin-login-modal" class="modal-overlay" onclick="backdropClose(event, 'admin-login-modal')">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 sm:p-6 border border-slate-200 shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <h3 class="font-black text-base text-doshop-ink">تسجيل دخول الإدارة</h3>
+        <button type="button" onclick="closeModal('admin-login-modal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+      </div>
+      <form onsubmit="submitAdminPasscode(event)" class="space-y-3 text-xs">
+        <div>
+          <label class="block font-extrabold mb-1">رمز المرور</label>
+          <input type="password" id="admin-passcode-input" required placeholder="••••••••••" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-left font-mono focus:outline-none focus:border-doshop-orange" />
+          <p id="admin-passcode-error" class="hidden text-rose-600 font-bold mt-1">رمز المرور غير صحيح.</p>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy text-sm font-black transition">
+          دخول اللوحة
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. REFERENCE DATA (TUNISIA 24 GOVERNORATES, CATEGORIES, REALISTIC TND)
+    // =========================================================================
+    const GOV_DATA = [
+      { name: 'تونس', eta: '24 - 48 ساعة' },
+      { name: 'أريانة', eta: '24 - 48 ساعة' },
+      { name: 'بن عروس', eta: '24 - 48 ساعة' },
+      { name: 'منوبة', eta: '24 - 48 ساعة' },
+      { name: 'بنزرت', eta: '48 ساعة' },
+      { name: 'نابل', eta: '24 - 48 ساعة' },
+      { name: 'زغوان', eta: '48 ساعة' },
+      { name: 'سوسة', eta: '24 - 48 ساعة' },
+      { name: 'المنستير', eta: '48 ساعة' },
+      { name: 'المهدية', eta: '48 ساعة' },
+      { name: 'صفاقس', eta: '24 - 48 ساعة' },
+      { name: 'القيروان', eta: '48 - 72 ساعة' },
+      { name: 'القصرين', eta: '48 - 72 ساعة' },
+      { name: 'سيدي بوزيد', eta: '48 - 72 ساعة' },
+      { name: 'قابس', eta: '48 - 72 ساعة' },
+      { name: 'مدنين', eta: '48 - 72 ساعة' },
+      { name: 'تطاوين', eta: '72 ساعة' },
+      { name: 'قفصة', eta: '48 - 72 ساعة' },
+      { name: 'توزر', eta: '72 ساعة' },
+      { name: 'قبلي', eta: '72 ساعة' },
+      { name: 'الكاف', eta: '48 - 72 ساعة' },
+      { name: 'سليانة', eta: '48 - 72 ساعة' },
+      { name: 'جندوبة', eta: '48 - 72 ساعة' },
+      { name: 'باجة', eta: '48 - 72 ساعة' }
+    ];
+
+    const STORE_CATEGORIES = [
+      'عطور نسائية',
+      'عطور رجالية',
+      'عطور للجنسين',
+      'العناية بالبشرة',
+      'المكياج والتجميل',
+      'العناية الشخصية'
+    ];
+
+    const INITIAL_SLIDES = [
+      {
+        id: 'sl-1',
+        title: 'تشكيلة عطور نسائية ورجالية فاخرة في تونس',
+        subtitle: 'روائح جذابة وثبات مميز بأسعار واضحة بين 10 و150 دينار تونسي مع الدفع عند الاستلام.',
+        badge: 'الأكثر مبيعاً في Doshop',
+        image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1400&q=80',
+        ctaCategory: 'عطور نسائية'
+      },
+      {
+        id: 'sl-2',
+        title: 'روتين العناية بالبشرة والمكياج اليومي',
+        subtitle: 'سيرومات مرطبة، واقيات شمس، وأحمر شفاه بتركيبات مريحة للاستخدام اليومي.',
+        badge: 'عناية وتجميل',
+        image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=1400&q=80',
+        ctaCategory: 'العناية بالبشرة'
+      },
+      {
+        id: 'sl-3',
+        title: 'عطور للجنسين بنفحات العنبر والمسك والعود',
+        subtitle: 'اختيارات متوازنة تناسب الإطلالات المسائية واليومية في كافة الولايات التونسية.',
+        badge: 'توصيل سريع',
+        image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=1400&q=80',
+        ctaCategory: 'عطور للجنسين'
+      }
+    ];
+
+    const INITIAL_BENTO_CARDS = [
+      {
+        title: 'عطور نسائية مختارة',
+        image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=700&q=80',
+        category: 'عطور نسائية',
+        audience: 'نساء',
+        linkText: 'اكتشف العطور النسائية'
+      },
+      {
+        title: 'عطور رجالية عصرية',
+        image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=700&q=80',
+        category: 'عطور رجالية',
+        audience: 'رجال',
+        linkText: 'تسوق العطور الرجالية'
+      },
+      {
+        title: 'العناية بالبشرة والترطيب',
+        image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=700&q=80',
+        category: 'العناية بالبشرة',
+        audience: 'all',
+        linkText: 'تصفح منتجات البشرة'
+      },
+      {
+        title: 'المكياج والتجميل اليومي',
+        image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=700&q=80',
+        category: 'المكياج والتجميل',
+        audience: 'نساء',
+        linkText: 'شاهد المكياج والتجميل'
+      }
+    ];
+
+    const INITIAL_PRODUCTS = [
+      {
+        id: 'p-101',
+        name: 'عطر فانيليا أورينت نسائي 100 مل',
+        brand: 'Maison Tunis',
+        category: 'عطور نسائية',
+        audience: 'نساء',
+        price: 78.000,
+        oldPrice: 98.000,
+        costPrice: 44.000,
+        stock: 26,
+        soldCount: 84,
+        rating: 4.9,
+        express: true,
+        isFlashDeal: true,
+        image: 'https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?auto=format&fit=crop&w=800&q=80',
+        notes: 'الفانيليا المدغشقرية • زهر البرتقال • العنبر الدافئ',
+        description: 'عطر نسائي أنيق يجمع بين حلاوة الفانيليا ودفء العنبر برائحة متوازنة تدوم طويلاً.',
+        reviews: [
+          { author: 'مريم ك.', rating: 5, comment: 'رائحة ناعمة وثابتة جداً، وصلني خلال يومين إلى تونس.' }
+        ]
+      },
+      {
+        id: 'p-102',
+        name: 'عطر وردة الياسمين المسائي 50 مل',
+        brand: 'Ambre Doré',
+        category: 'عطور نسائية',
+        audience: 'نساء',
+        price: 118.000,
+        oldPrice: 140.000,
+        costPrice: 68.000,
+        stock: 14,
+        soldCount: 62,
+        rating: 4.8,
+        express: true,
+        isFlashDeal: true,
+        image: 'https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&q=80',
+        notes: 'الورد الدمشقي • الياسمين الأبيض • المسك الناعم',
+        description: 'عطر مسائي راقٍ يمنح حضوراً مميزاً في المناسبات والسهرات.',
+        reviews: [
+          { author: 'إيناس م.', rating: 5, comment: 'فخم جداً والعبوة أنيقة.' }
+        ]
+      },
+      {
+        id: 'p-103',
+        name: 'عطر نوير إنتنس للرجال 100 مل',
+        brand: 'Atlas Parfums',
+        category: 'عطور رجالية',
+        audience: 'رجال',
+        price: 92.000,
+        oldPrice: 115.000,
+        costPrice: 52.000,
+        stock: 22,
+        soldCount: 77,
+        rating: 4.8,
+        express: true,
+        isFlashDeal: true,
+        image: 'https://images.unsplash.com/photo-1523293182086-7651a899d37f?auto=format&fit=crop&w=800&q=80',
+        notes: 'البرغموت • الفلفل الأسود • خشب الأرز',
+        description: 'عطر رجالي حيوي وعصري يجمع بين الانتعاش الأولي وقاعدة خشبية قوية.',
+        reviews: []
+      },
+      {
+        id: 'p-104',
+        name: 'عطر سبايس وود الرجالي 75 مل',
+        brand: 'Atlas Parfums',
+        category: 'عطور رجالية',
+        audience: 'رجال',
+        price: 56.000,
+        oldPrice: 70.000,
+        costPrice: 31.000,
+        stock: 31,
+        soldCount: 53,
+        rating: 4.6,
+        express: false,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&q=80',
+        notes: 'القرفة الخفيفة • الهيل • خشب الصندل',
+        description: 'اختيار عملي وأنيق للاستخدام اليومي والعمل بنفحات خشبية متوازنة.',
+        reviews: []
+      },
+      {
+        id: 'p-105',
+        name: 'عطر عود ومسك للجنسين 100 مل',
+        brand: 'Ambre Doré',
+        category: 'عطور للجنسين',
+        audience: 'للجنسين',
+        price: 138.000,
+        oldPrice: 150.000,
+        costPrice: 80.000,
+        stock: 11,
+        soldCount: 49,
+        rating: 4.9,
+        express: true,
+        isFlashDeal: true,
+        image: 'https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=800&q=80',
+        notes: 'العود الهادئ • المسك الأبيض • العنبر',
+        description: 'تركيبة فاخرة مناسبة للرجال والنساء تجمع بين عمق العود ونقاء المسك.',
+        reviews: []
+      },
+      {
+        id: 'p-106',
+        name: 'سيروم فيتامين C لنضارة البشرة 30 مل',
+        brand: 'DermaCare',
+        category: 'العناية بالبشرة',
+        audience: 'للجنسين',
+        price: 44.000,
+        oldPrice: 54.000,
+        costPrice: 24.000,
+        stock: 34,
+        soldCount: 91,
+        rating: 4.7,
+        express: true,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=800&q=80',
+        notes: 'فيتامين C • حمض الهيالورونيك • خلاصة نباتية',
+        description: 'يساعد على منح البشرة إشراقة وترطيباً خفيفاً سريع الامتصاص.',
+        reviews: []
+      },
+      {
+        id: 'p-107',
+        name: 'كريم مرطب عميق للوجه والجسم 200 مل',
+        brand: 'DermaCare',
+        category: 'العناية بالبشرة',
+        audience: 'للجنسين',
+        price: 28.000,
+        oldPrice: 35.000,
+        costPrice: 15.000,
+        stock: 42,
+        soldCount: 67,
+        rating: 4.8,
+        express: true,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=800&q=80',
+        notes: 'زبدة الشيا • الجلسرين • فيتامين E',
+        description: 'ترطيب يومي مريح للبشرة الجافة والعادية دون أثر دهني ثقيل.',
+        reviews: []
+      },
+      {
+        id: 'p-108',
+        name: 'واقي شمس يومي SPF50+ 50 مل',
+        brand: 'Solis Lab',
+        category: 'العناية بالبشرة',
+        audience: 'للجنسين',
+        price: 62.000,
+        oldPrice: 74.000,
+        costPrice: 36.000,
+        stock: 19,
+        soldCount: 58,
+        rating: 4.8,
+        express: true,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=800&q=80',
+        notes: 'حماية واسعة الطيف • قوام سائل غير لامع',
+        description: 'حماية يومية فعالة من أشعة الشمس مناسبة لمختلف أنواع البشرة.',
+        reviews: []
+      },
+      {
+        id: 'p-109',
+        name: 'علبة أحمر شفاه مخملي 4 درجات',
+        brand: 'Velours Beauty',
+        category: 'المكياج والتجميل',
+        audience: 'نساء',
+        price: 34.000,
+        oldPrice: 42.000,
+        costPrice: 18.000,
+        stock: 25,
+        soldCount: 73,
+        rating: 4.6,
+        express: false,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=800&q=80',
+        notes: 'درجات وردية وترابية • لمسة مخملية ناعمة',
+        description: 'مجموعة متكاملة من الألوان اليومية والمسائية بملمس مريح على الشفاه.',
+        reviews: []
+      },
+      {
+        id: 'p-110',
+        name: 'ماسكارا لتكثيف وتحديد الرموش',
+        brand: 'Velours Beauty',
+        category: 'المكياج والتجميل',
+        audience: 'نساء',
+        price: 22.000,
+        oldPrice: 28.000,
+        costPrice: 11.000,
+        stock: 38,
+        soldCount: 61,
+        rating: 4.5,
+        express: true,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1631214524020-7e18db9a8f92?auto=format&fit=crop&w=800&q=80',
+        notes: 'لون أسود غني • فرشاة مرنة دقيقة',
+        description: 'تمنح الرموش مظهراً كثيفاً ومرتباً بسهولة خلال ثوانٍ.',
+        reviews: []
+      },
+      {
+        id: 'p-111',
+        name: 'غسول يومي منعش للوجه 150 مل',
+        brand: 'PureSkin',
+        category: 'العناية الشخصية',
+        audience: 'للجنسين',
+        price: 18.000,
+        oldPrice: 23.000,
+        costPrice: 9.000,
+        stock: 45,
+        soldCount: 88,
+        rating: 4.6,
+        express: true,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&w=800&q=80',
+        notes: 'خلاصة النعناع • منظف لطيف خالٍ من الجفاف',
+        description: 'ينظف البشرة من آثار اليوم ويتركها منتعشة ونظيفة.',
+        reviews: []
+      },
+      {
+        id: 'p-112',
+        name: 'زيت معطر للشعر برائحة الورد والفانيليا',
+        brand: 'Maison Tunis',
+        category: 'العناية الشخصية',
+        audience: 'نساء',
+        price: 15.000,
+        oldPrice: 20.000,
+        costPrice: 7.500,
+        stock: 40,
+        soldCount: 55,
+        rating: 4.7,
+        express: false,
+        isFlashDeal: false,
+        image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?auto=format&fit=crop&w=800&q=80',
+        notes: 'زيت الأرغان • لمسة ورد وفانيليا خفيفة',
+        description: 'يضفي نعومة ولمعاناً على الشعر مع عطر خفيف يدوم طويلاً.',
+        reviews: []
+      }
+    ];
+
+    const INITIAL_CARRIERS = [
+      { id: 'car-aramex', name: 'Aramex Tunisie', fee: 7.500, eta: '24 - 48 ساعة', active: true },
+      { id: 'car-first', name: 'First Delivery', fee: 7.000, eta: '24 - 48 ساعة', active: true },
+      { id: 'car-rapid', name: 'Rapid Post', fee: 6.500, eta: '48 - 72 ساعة', active: true },
+      { id: 'car-express', name: 'Doshop Express', fee: 8.500, eta: 'خلال 24 ساعة', active: true }
+    ];
+
+    const INITIAL_ADMINS = [
+      { id: 'adm-main', name: 'المدير العام', username: 'admin', passcode: 'doshop2026' },
+      { id: 'adm-ops', name: 'مشرف الطلبات والشحن', username: 'ops', passcode: 'ops2026' }
+    ];
+
+    const INITIAL_ORDERS = [
+      {
+        id: 'DS-2026-5001',
+        date: '2026-11-20',
+        customerName: 'ليلى بن سالم',
+        phone: '24112233',
+        governorate: 'تونس',
+        city: 'المرسى',
+        address: 'نهج الحبيب بورقيبة رقم 22',
+        carrierId: 'car-first',
+        carrierName: 'First Delivery',
+        trackingCode: 'TRK-88412TN',
+        paymentMethod: 'الدفع نقداً عند الاستلام (COD)',
+        subtotal: 78.000,
+        discount: 0,
+        shipping: 7.000,
+        total: 85.000,
+        status: 'قيد التجهيز',
+        items: [{ id: 'p-101', name: 'عطر فانيليا أورينت نسائي 100 مل', price: 78.000, qty: 1 }]
+      }
+    ];
+
+    const COUPONS_TABLE = {
+      DOSHOP10: { type: 'percent', value: 10, label: 'DOSHOP10 (-10%)' },
+      SAVE15: { type: 'fixed', value: 15.000, label: 'SAVE15 (-15.000 د.ت)' }
+    };
+
+    // =========================================================================
+    // 2. SAFE STORAGE & STATE INITIALIZATION
+    // =========================================================================
+    function safeRead(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(fallback));
+      } catch (_) {
+        return JSON.parse(JSON.stringify(fallback));
+      }
+    }
+
+    function safeWrite(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (_) {}
+    }
+
+    const appState = {
+      products: safeRead('doshop_store_products', INITIAL_PRODUCTS),
+      slides: safeRead('doshop_store_slides', INITIAL_SLIDES),
+      bentoCards: safeRead('doshop_store_bento', INITIAL_BENTO_CARDS),
+      carriers: safeRead('doshop_store_carriers', INITIAL_CARRIERS),
+      admins: safeRead('doshop_store_admins', INITIAL_ADMINS),
+      orders: safeRead('doshop_store_orders', INITIAL_ORDERS),
+      cart: safeRead('doshop_store_cart', []),
+      wishlist: safeRead('doshop_store_wishlist', ['p-101']),
+      settings: safeRead('doshop_store_settings', {
+        defaultShipping: 7.000,
+        freeShippingThreshold: 110.000,
+        enableD17: false,
+        enableFlouci: false,
+        maintenanceMode: false,
+        announcementText: 'عطور ومستحضرات تجميل وعناية أصلية ومختارة • الدفع نقداً عند الاستلام في كافة الولايات التونسية',
+        govOverrides: {}
+      }),
+      activityLogs: safeRead('doshop_store_logs', [
+        'تهيئة منصة Doshop والمتجر واللوحة الإدارية بنجاح.'
+      ]),
+      activeAdminId: localStorage.getItem('doshop_active_admin_id') || 'adm-main',
+      customerName: localStorage.getItem('doshop_customer_name') || '',
+      selectedGovernorate: localStorage.getItem('doshop_selected_gov') || 'تونس',
+      appliedCoupon: '',
+
+      // Filters & UI state
+      selectedCategory: 'all',
+      selectedAudience: 'all',
+      maxPrice: 150,
+      minRating: 0,
+      selectedBrand: 'all',
+      expressOnly: false,
+      sortBy: 'popular',
+      currentSlide: 0,
+      adminAuthenticated: false,
+      adminTab: 'overview',
+      logoTapCount: 0,
+      logoTapTimer: null,
+      keyBuffer: '',
+      flashSecondsLeft: 4 * 3600 + 38 * 60 + 15
+    };
+
+    function formatTND(val) {
+      const n = Number(val) || 0;
+      return `${n.toFixed(3)} د.ت`;
+    }
+
+    function pushActivityLog(entry) {
+      const stamp = new Date().toLocaleTimeString('ar-TN', { hour: '2-digit', minute: '2-digit' });
+      appState.activityLogs.unshift(`[${stamp}] ${entry}`);
+      appState.activityLogs = appState.activityLogs.slice(0, 30);
+      safeWrite('doshop_store_logs', appState.activityLogs);
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('doshop-toast');
+      const txt = document.getElementById('doshop-toast-msg');
+      if (!el || !txt) return;
+      txt.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => {
+        el.classList.add('hidden');
+      }, 2600);
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('open');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('open');
+    }
+
+    function backdropClose(event, id) {
+      if (event.target && event.target.id === id) {
+        closeModal(id);
+      }
+    }
+
+    // =========================================================================
+    // 3. HEADER, GOVERNORATE, SEARCH & HERO RENDERING
+    // =========================================================================
+    function renderHeaderMeta() {
+      const govMeta = GOV_DATA.find((g) => g.name === appState.selectedGovernorate) || GOV_DATA[0];
+      const govLabel = document.getElementById('header-gov-label');
+      if (govLabel) {
+        govLabel.innerHTML = `${govMeta.name} <span class="text-doshop-orange font-bold">(${govMeta.eta})</span>`;
+      }
+
+      const accName = document.getElementById('header-account-name');
+      if (accName) {
+        accName.textContent = appState.customerName ? appState.customerName : 'الحساب والقوائم';
+      }
+
+      const annText = document.getElementById('announcement-text');
+      if (annText) annText.textContent = appState.settings.announcementText;
+
+      const freeShipEl = document.getElementById('announcement-free-ship');
+      if (freeShipEl) freeShipEl.textContent = `شحن مجاني فوق ${formatTND(appState.settings.freeShippingThreshold)}`;
+
+      const maintBanner = document.getElementById('maintenance-banner');
+      if (maintBanner) {
+        maintBanner.classList.toggle('hidden', !appState.settings.maintenanceMode);
+      }
+
+      const selectEl = document.getElementById('search-category-select');
+      if (selectEl) {
+        const current = selectEl.value;
+        selectEl.innerHTML = `<option value="all">كل الأقسام</option>` +
+          STORE_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join('');
+        if (current) selectEl.value = current;
+      }
+
+      const tier2 = document.getElementById('tier2-category-links');
+      if (tier2) {
+        const allActive = appState.selectedCategory === 'all';
+        tier2.innerHTML = `
+          <button type="button" onclick="setCategoryFilter('all')" class="px-3 py-1 rounded-lg font-extrabold transition ${allActive ? 'bg-doshop-orange text-doshop-navy' : 'text-slate-200 hover:bg-white/10'}">
+            الكل
+          </button>
+        ` + STORE_CATEGORIES.map((c) => {
+          const active = appState.selectedCategory === c;
+          return `
+            <button type="button" onclick="setCategoryFilter('${c}')" class="px-3 py-1 rounded-lg font-extrabold transition ${active ? 'bg-doshop-orange text-doshop-navy' : 'text-slate-200 hover:bg-white/10'}">
+              ${c}
+            </button>
+          `;
+        }).join('');
+      }
+
+      const wishBadge = document.getElementById('wishlist-badge');
+      if (wishBadge) wishBadge.textContent = String(appState.wishlist.length);
+    }
+
+    function openDeliveryModal() {
+      const sel = document.getElementById('delivery-gov-select');
+      if (!sel) return;
+      sel.innerHTML = GOV_DATA.map((g) => `<option value="${g.name}">${g.name} (${g.eta})</option>`).join('');
+      sel.value = appState.selectedGovernorate;
+      previewGovernorateDelivery();
+      openModal('delivery-modal');
+    }
+
+    function previewGovernorateDelivery() {
+      const sel = document.getElementById('delivery-gov-select');
+      const infoBox = document.getElementById('delivery-gov-info');
+      if (!sel || !infoBox) return;
+      const gov = GOV_DATA.find((g) => g.name === sel.value) || GOV_DATA[0];
+      const fee = computeShippingFee(gov.name);
+      infoBox.innerHTML = `
+        <div>الولاية المختارة: <span class="font-black">${gov.name}</span></div>
+        <div>مدة التوصيل المتوقعة: <span class="font-black">${gov.eta}</span></div>
+        <div>رسوم التوصيل الحالية: <span class="font-black">${formatTND(fee)}</span> (مجاني فوق ${formatTND(appState.settings.freeShippingThreshold)})</div>
+      `;
+    }
+
+    function confirmGovernorateSelection() {
+      const sel = document.getElementById('delivery-gov-select');
+      if (!sel) return;
+      appState.selectedGovernorate = sel.value;
+      localStorage.setItem('doshop_selected_gov', appState.selectedGovernorate);
+      closeModal('delivery-modal');
+      renderHeaderMeta();
+      renderCartDrawer();
+      showToast(`تم ضبط التوصيل إلى ولاية ${appState.selectedGovernorate}`);
+    }
+
+    function handleSearchInput() {
+      runStoreFilters();
+      const q = (document.getElementById('global-search-input')?.value || '').trim().toLowerCase();
+      const box = document.getElementById('search-autocomplete-box');
+      if (!box) return;
+      if (!q) {
+        box.classList.add('hidden');
+        return;
+      }
+      const matches = appState.products.filter((p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q)
+      ).slice(0, 5);
+
+      if (matches.length === 0) {
+        box.classList.add('hidden');
+        return;
+      }
+
+      box.innerHTML = matches.map((p) => `
+        <button type="button" onclick="selectAutocompleteItem('${p.id}')" class="w-full px-3.5 py-2.5 flex items-center gap-3 hover:bg-amber-50/70 text-right border-b border-slate-100 last:border-b-0 transition">
+          <img src="${p.image}" alt="${p.name}" class="w-10 h-10 rounded-lg object-cover bg-slate-100 shrink-0" onerror="this.src='https://placehold.co/80x80/f1f5f9/0f172a?text=Doshop'" />
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-extrabold text-doshop-ink truncate">${p.name}</div>
+            <div class="text-[11px] text-slate-500">${p.brand} • ${p.category}</div>
+          </div>
+          <div class="text-xs font-black text-doshop-orangeHover shrink-0">${formatTND(p.price)}</div>
+        </button>
+      `).join('');
+      box.classList.remove('hidden');
+    }
+
+    function hideSearchSuggestions() {
+      document.getElementById('search-autocomplete-box')?.classList.add('hidden');
+    }
+
+    function selectAutocompleteItem(productId) {
+      hideSearchSuggestions();
+      openProductDetail(productId);
+    }
+
+    document.addEventListener('click', (e) => {
+      const box = document.getElementById('search-autocomplete-box');
+      const input = document.getElementById('global-search-input');
+      if (box && input && !box.contains(e.target) && e.target !== input) {
+        box.classList.add('hidden');
+      }
+    });
+
+    function renderHeroAndBento() {
+      const track = document.getElementById('hero-slides-track');
+      const dots = document.getElementById('hero-dots');
+      if (track && appState.slides.length > 0) {
+        if (appState.currentSlide >= appState.slides.length) appState.currentSlide = 0;
+        const slide = appState.slides[appState.currentSlide];
+        track.innerHTML = `
+          <div class="w-full h-full relative">
+            <img src="${slide.image}" alt="${slide.title}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/1200x420/1e293b/ffffff?text=Doshop'" />
+            <div class="absolute inset-0 bg-gradient-to-l from-doshop-navy/90 via-doshop-navy/60 to-transparent flex items-center">
+              <div class="max-w-xl px-6 sm:px-10 pb-12 sm:pb-14 space-y-2.5 text-white">
+                <span class="inline-block bg-doshop-orange text-doshop-navy text-[11px] font-black px-3 py-0.5 rounded-full">
+                  ${slide.badge || 'Doshop'}
+                </span>
+                <h1 class="text-xl sm:text-3xl font-black leading-snug">${slide.title}</h1>
+                <p class="text-xs sm:text-sm text-slate-200 leading-relaxed line-clamp-2">${slide.subtitle}</p>
+                <div class="pt-1">
+                  <button type="button" onclick="setCategoryFilter('${slide.ctaCategory || 'all'}'); scrollToCatalog();" class="px-4 py-2 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy text-xs font-black transition shadow-sm">
+                    تسوق الآن
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (dots) {
+        dots.innerHTML = appState.slides.map((_, idx) => `
+          <button type="button" onclick="goToHeroSlide(${idx})" class="h-2.5 rounded-full transition-all ${idx === appState.currentSlide ? 'w-7 bg-doshop-orange' : 'w-2.5 bg-white/70 hover:bg-white'}"></button>
+        `).join('');
+      }
+
+      const bentoGrid = document.getElementById('bento-cards-grid');
+      if (bentoGrid) {
+        bentoGrid.innerHTML = appState.bentoCards.map((card) => `
+          <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-3">
+            <h3 class="text-sm font-black text-doshop-ink">${card.title}</h3>
+            <button type="button" onclick="applyBentoShortcut('${card.category}', '${card.audience}')" class="h-36 w-full rounded-xl overflow-hidden bg-slate-100 block focus:outline-none">
+              <img src="${card.image}" alt="${card.title}" loading="lazy" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/500x300/f1f5f9/0f172a?text=Doshop'" />
+            </button>
+            <button type="button" onclick="applyBentoShortcut('${card.category}', '${card.audience}')" class="text-xs font-extrabold text-doshop-orangeHover hover:underline text-right">
+              ${card.linkText} ←
+            </button>
+          </div>
+        `).join('');
+      }
+
+      const quickStrip = document.getElementById('quick-category-strip');
+      if (quickStrip) {
+        quickStrip.innerHTML = STORE_CATEGORIES.map((cat) => {
+          const sample = appState.products.find((p) => p.category === cat) || appState.products[0];
+          const active = appState.selectedCategory === cat;
+          return `
+            <button type="button" onclick="setCategoryFilter('${cat}'); scrollToCatalog();" class="p-2.5 rounded-xl border ${active ? 'border-doshop-orange bg-amber-50/60' : 'border-slate-200/80 bg-slate-50/60 hover:bg-slate-100'} flex items-center gap-2.5 text-right transition">
+              <img src="${sample ? sample.image : ''}" alt="${cat}" loading="lazy" class="w-11 h-11 rounded-lg object-cover bg-white shrink-0" onerror="this.src='https://placehold.co/80x80/f1f5f9/0f172a?text=D'" />
+              <span class="text-xs font-extrabold text-doshop-ink leading-tight line-clamp-2">${cat}</span>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    function goToHeroSlide(idx) {
+      appState.currentSlide = idx;
+      renderHeroAndBento();
+    }
+
+    function nextHeroSlide() {
+      if (appState.slides.length === 0) return;
+      appState.currentSlide = (appState.currentSlide + 1) % appState.slides.length;
+      renderHeroAndBento();
+    }
+
+    function prevHeroSlide() {
+      if (appState.slides.length === 0) return;
+      appState.currentSlide = (appState.currentSlide - 1 + appState.slides.length) % appState.slides.length;
+      renderHeroAndBento();
+    }
+
+    function applyBentoShortcut(cat, aud) {
+      appState.selectedCategory = cat || 'all';
+      appState.selectedAudience = aud || 'all';
+      syncAudienceButtons();
+      renderHeaderMeta();
+      renderSidebarFilters();
+      runStoreFilters();
+      scrollToCatalog();
+    }
+
+    function scrollToCatalog() {
+      document.getElementById('catalog-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // =========================================================================
+    // 4. FLASH DEALS & LIVE COUNTDOWN
+    // =========================================================================
+    function startFlashCountdown() {
+      const updateTimer = () => {
+        if (appState.flashSecondsLeft <= 0) {
+          appState.flashSecondsLeft = 4 * 3600;
+        }
+        const h = String(Math.floor(appState.flashSecondsLeft / 3600)).padStart(2, '0');
+        const m = String(Math.floor((appState.flashSecondsLeft % 3600) / 60)).padStart(2, '0');
+        const s = String(appState.flashSecondsLeft % 60).padStart(2, '0');
+        const el = document.getElementById('flash-countdown');
+        if (el) el.textContent = `${h}:${m}:${s}`;
+        appState.flashSecondsLeft -= 1;
+      };
+      updateTimer();
+      setInterval(updateTimer, 1000);
+    }
+
+    function renderFlashDeals() {
+      const row = document.getElementById('flash-deals-row');
+      if (!row) return;
+      const deals = appState.products.filter((p) => p.isFlashDeal).slice(0, 4);
+      row.innerHTML = deals.map((p) => {
+        const soldPct = Math.min(92, Math.max(35, Number(p.soldCount) || 60));
+        return `
+          <div class="rounded-2xl border border-slate-200/90 p-3.5 bg-slate-50/40 hover:bg-white hover:shadow-md transition flex flex-col justify-between space-y-3">
+            <div>
+              <button type="button" onclick="openProductDetail('${p.id}')" class="w-full h-40 rounded-xl overflow-hidden bg-white mb-2.5 block focus:outline-none">
+                <img src="${p.image}" alt="${p.name}" loading="lazy" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/500x320/f1f5f9/0f172a?text=Doshop'" />
+              </button>
+              <div class="flex items-center justify-between text-[11px] font-extrabold mb-1">
+                <span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded-md">عرض خاطف</span>
+                <span class="text-slate-500">${p.audience}</span>
+              </div>
+              <button type="button" onclick="openProductDetail('${p.id}')" class="text-right text-xs sm:text-sm font-black text-doshop-ink hover:text-doshop-orangeHover line-clamp-1">
+                ${p.name}
+              </button>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span class="text-sm sm:text-base font-black text-doshop-ink">${formatTND(p.price)}</span>
+                ${p.oldPrice ? `<span class="text-[11px] line-through text-slate-400 font-bold">${formatTND(p.oldPrice)}</span>` : ''}
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <div>
+                <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+                  <span>تم بيع ${soldPct}%</span>
+                  <span>متوفر (${p.stock})</span>
+                </div>
+                <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden">
+                  <div class="h-full bg-doshop-orange rounded-full" style="width:${soldPct}%"></div>
+                </div>
+              </div>
+              <button type="button" onclick="addProductToCart('${p.id}')" class="w-full py-2 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy text-xs font-black transition">
+                أضف إلى السلة
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 5. SIDEBAR FILTERS & FULL PRODUCT CATALOG
+    // =========================================================================
+    function renderSidebarFilters() {
+      const catBox = document.getElementById('sidebar-category-list');
+      if (catBox) {
+        const items = ['all', ...STORE_CATEGORIES];
+        catBox.innerHTML = items.map((c) => {
+          const label = c === 'all' ? 'جميع الأقسام' : c;
+          const active = appState.selectedCategory === c;
+          return `
+            <button type="button" onclick="setCategoryFilter('${c}')" class="w-full text-right px-3 py-1.5 rounded-xl font-extrabold transition ${active ? 'bg-doshop-orange text-doshop-navy' : 'text-slate-700 hover:bg-slate-100'}">
+              ${label}
+            </button>
+          `;
+        }).join('');
+      }
+
+      const brandSel = document.getElementById('brand-filter-select');
+      if (brandSel) {
+        const brands = Array.from(new Set(appState.products.map((p) => p.brand).filter(Boolean)));
+        const prev = appState.selectedBrand;
+        brandSel.innerHTML = `<option value="all">كل الماركات</option>` +
+          brands.map((b) => `<option value="${b}">${b}</option>`).join('');
+        brandSel.value = brands.includes(prev) ? prev : 'all';
+      }
+
+      const slider = document.getElementById('price-range-slider');
+      const priceLbl = document.getElementById('price-max-label');
+      if (slider) slider.value = String(appState.maxPrice);
+      if (priceLbl) priceLbl.textContent = `حتى ${formatTND(appState.maxPrice)}`;
+    }
+
+    function setCategoryFilter(cat) {
+      appState.selectedCategory = cat;
+      const topSel = document.getElementById('search-category-select');
+      if (topSel) topSel.value = cat;
+      renderHeaderMeta();
+      renderSidebarFilters();
+      runStoreFilters();
+    }
+
+    function setAudienceFilter(aud) {
+      appState.selectedAudience = aud;
+      syncAudienceButtons();
+      runStoreFilters();
+    }
+
+    function syncAudienceButtons() {
+      document.querySelectorAll('.aud-pill').forEach((btn) => {
+        const match = btn.dataset.audience === appState.selectedAudience;
+        btn.className = match
+          ? 'aud-pill px-3 py-1 rounded-lg font-extrabold bg-doshop-orange text-doshop-navy'
+          : 'aud-pill px-3 py-1 rounded-lg font-extrabold bg-white/10 text-white hover:bg-white/20';
+      });
+      document.querySelectorAll('.aud-side-btn').forEach((btn) => {
+        const match = btn.dataset.audSide === appState.selectedAudience;
+        btn.className = match
+          ? 'aud-side-btn py-1.5 px-2.5 rounded-xl font-extrabold bg-doshop-orange text-doshop-navy'
+          : 'aud-side-btn py-1.5 px-2.5 rounded-xl font-extrabold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+    }
+
+    function handlePriceSliderChange(val) {
+      appState.maxPrice = Math.min(150, Math.max(10, Number(val) || 150));
+      const lbl = document.getElementById('price-max-label');
+      if (lbl) lbl.textContent = `حتى ${formatTND(appState.maxPrice)}`;
+      runStoreFilters();
+    }
+
+    function setRatingFilter(val) {
+      appState.minRating = Number(val) || 0;
+      runStoreFilters();
+    }
+
+    function resetAllStoreFilters() {
+      appState.selectedCategory = 'all';
+      appState.selectedAudience = 'all';
+      appState.maxPrice = 150;
+      appState.minRating = 0;
+      appState.selectedBrand = 'all';
+      appState.expressOnly = false;
+      appState.sortBy = 'popular';
+
+      const searchIn = document.getElementById('global-search-input');
+      const topCat = document.getElementById('search-category-select');
+      const expressChk = document.getElementById('express-only-check');
+      const sortSel = document.getElementById('catalog-sort-select');
+      const allRadio = document.querySelector('input[name="ratingFilter"][value="0"]');
+
+      if (searchIn) searchIn.value = '';
+      if (topCat) topCat.value = 'all';
+      if (expressChk) expressChk.checked = false;
+      if (sortSel) sortSel.value = 'popular';
+      if (allRadio) allRadio.checked = true;
+
+      syncAudienceButtons();
+      renderHeaderMeta();
+      renderSidebarFilters();
+      runStoreFilters();
+    }
+
+    function runStoreFilters() {
+      const q = (document.getElementById('global-search-input')?.value || '').trim().toLowerCase();
+      const topCat = document.getElementById('search-category-select')?.value;
+      if (topCat && topCat !== appState.selectedCategory) {
+        appState.selectedCategory = topCat;
+        renderHeaderMeta();
+        renderSidebarFilters();
+      }
+
+      appState.selectedBrand = document.getElementById('brand-filter-select')?.value || 'all';
+      appState.expressOnly = Boolean(document.getElementById('express-only-check')?.checked);
+      appState.sortBy = document.getElementById('catalog-sort-select')?.value || 'popular';
+
+      let filtered = appState.products.filter((p) => {
+        const priceOk = Number(p.price) >= 10 && Number(p.price) <= Number(appState.maxPrice);
+        const catOk = appState.selectedCategory === 'all' || p.category === appState.selectedCategory;
+        const audOk = appState.selectedAudience === 'all' || p.audience === appState.selectedAudience;
+        const rateOk = (Number(p.rating) || 0) >= appState.minRating;
+        const brandOk = appState.selectedBrand === 'all' || p.brand === appState.selectedBrand;
+        const expOk = !appState.expressOnly || Boolean(p.express);
+        const queryOk = !q ||
+          p.name.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q) ||
+          (p.notes || '').toLowerCase().includes(q);
+
+        return priceOk && catOk && audOk && rateOk && brandOk && expOk && queryOk;
+      });
+
+      if (appState.sortBy === 'price-asc') {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (appState.sortBy === 'price-desc') {
+        filtered.sort((a, b) => b.price - a.price);
+      } else if (appState.sortBy === 'rating') {
+        filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+      } else {
+        filtered.sort((a, b) => (b.soldCount || 0) - (a.soldCount || 0));
+      }
+
+      renderCatalogGrid(filtered);
+    }
+
+    function renderCatalogGrid(items) {
+      const grid = document.getElementById('main-products-grid');
+      const empty = document.getElementById('catalog-empty-state');
+      const summary = document.getElementById('catalog-results-summary');
+
+      if (summary) {
+        summary.textContent = `عرض ${items.length} من أصل ${appState.products.length} منتج (الأسعار بين 10 و150 د.ت)`;
+      }
+
+      if (!grid || !empty) return;
+
+      if (items.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      grid.innerHTML = items.map((p) => {
+        const wished = appState.wishlist.includes(p.id);
+        const available = Number(p.stock) > 0;
+        return `
+          <article class="bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-2xs hover:shadow-md transition flex flex-col justify-between">
+            <div>
+              <div class="relative h-52 bg-slate-100 overflow-hidden">
+                <button type="button" onclick="openProductDetail('${p.id}')" class="w-full h-full block focus:outline-none">
+                  <img src="${p.image}" alt="${p.name}" loading="lazy" class="w-full h-full object-cover hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/600x420/f1f5f9/0f172a?text=Doshop'" />
+                </button>
+                <span class="absolute top-2.5 right-2.5 bg-doshop-navy/90 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg">
+                  ${p.audience}
+                </span>
+                ${p.express ? `<span class="absolute top-2.5 left-2.5 bg-amber-300 text-doshop-navy text-[10px] font-black px-2 py-0.5 rounded-lg">Express</span>` : ''}
+                <button type="button" onclick="toggleWishlistItem('${p.id}')" aria-label="المفضلة" class="absolute bottom-2.5 left-2.5 w-8 h-8 rounded-full bg-white/95 shadow-xs flex items-center justify-center transition hover:scale-105">
+                  <svg class="w-4 h-4 ${wished ? 'text-rose-600' : 'text-slate-400'}" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="p-4 space-y-1.5">
+                <div class="flex items-center justify-between text-[11px] font-bold text-slate-500">
+                  <span>${p.category} • ${p.brand}</span>
+                  <span class="text-amber-600 font-extrabold">★ ${(Number(p.rating) || 4.7).toFixed(1)}</span>
+                </div>
+                <button type="button" onclick="openProductDetail('${p.id}')" class="text-right text-sm font-black text-doshop-ink hover:text-doshop-orangeHover line-clamp-2 leading-snug">
+                  ${p.name}
+                </button>
+                <p class="text-xs text-slate-500 line-clamp-1">${p.notes || p.description}</p>
+              </div>
+            </div>
+
+            <div class="px-4 pb-4 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-base font-black text-doshop-ink">${formatTND(p.price)}</div>
+                <div class="text-[11px] font-bold ${available ? 'text-emerald-700' : 'text-rose-600'}">
+                  ${available ? `متوفر (${p.stock})` : 'غير متوفر حالياً'}
+                </div>
+              </div>
+              <button type="button" ${!available ? 'disabled' : ''} onclick="addProductToCart('${p.id}')" class="px-3.5 py-2 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover disabled:opacity-40 text-doshop-navy text-xs font-black transition shrink-0">
+                أضف للسلة
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // 6. PRODUCT DETAIL MODAL & REVIEWS
+    // =========================================================================
+    function openProductDetail(productId) {
+      const p = appState.products.find((item) => item.id === productId);
+      if (!p) return;
+      const box = document.getElementById('product-detail-content');
+      if (!box) return;
+
+      const reviews = Array.isArray(p.reviews) ? p.reviews : [];
+      const available = Number(p.stock) > 0;
+
+      box.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+          <span class="text-xs font-extrabold text-slate-500">${p.category} • ${p.brand} • ${p.audience}</span>
+          <button type="button" onclick="closeModal('product-detail-modal')" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 font-black text-sm">✕</button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+          <div class="h-72 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200">
+            <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/600x450/f1f5f9/0f172a?text=Doshop'" />
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <h2 class="text-lg sm:text-xl font-black text-doshop-ink leading-snug">${p.name}</h2>
+            <div class="flex items-center gap-3">
+              <span class="text-xl font-black text-doshop-orangeHover">${formatTND(p.price)}</span>
+              ${p.oldPrice ? `<span class="text-xs line-through text-slate-400 font-bold">${formatTND(p.oldPrice)}</span>` : ''}
+              <span class="text-xs font-extrabold text-amber-600">★ ${(Number(p.rating) || 4.7).toFixed(1)}</span>
+            </div>
+
+            <p class="text-slate-600 leading-relaxed">${p.description}</p>
+
+            ${p.notes ? `
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="font-black text-doshop-ink mb-0.5">المكونات / النوتات:</div>
+                <div class="text-slate-600 font-semibold">${p.notes}</div>
+              </div>
+            ` : ''}
+
+            <div class="font-bold ${available ? 'text-emerald-700' : 'text-rose-600'}">
+              ${available ? `متوفر في المخزون (${p.stock} قطعة)` : 'نفذت الكمية حالياً'}
+            </div>
+
+            <div class="flex gap-2.5 pt-1">
+              <button type="button" ${!available ? 'disabled' : ''} onclick="addProductToCart('${p.id}'); closeModal('product-detail-modal');" class="flex-1 py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover disabled:opacity-40 text-doshop-navy text-sm font-black transition">
+                إضافة إلى السلة
+              </button>
+              <button type="button" onclick="toggleWishlistItem('${p.id}'); openProductDetail('${p.id}');" class="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 font-extrabold">
+                ${appState.wishlist.includes(p.id) ? 'في المفضلة ♥' : 'أضف للمفضلة ♡'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Reviews & Submission -->
+        <div class="mt-6 pt-5 border-t border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+          <div>
+            <h3 class="font-black text-sm text-doshop-ink mb-2.5">تقييمات الزبائن (${reviews.length})</h3>
+            <div class="space-y-2 max-h-44 overflow-y-auto">
+              ${reviews.length === 0 ? `<p class="text-slate-400">لا توجد تقييمات بعد لهذا المنتج.</p>` : reviews.map((r) => `
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-1">
+                  <div class="flex items-center justify-between font-extrabold">
+                    <span class="text-doshop-ink">${r.author}</span>
+                    <span class="text-amber-600">★ ${Number(r.rating).toFixed(1)}</span>
+                  </div>
+                  <p class="text-slate-600">${r.comment}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-black text-sm text-doshop-ink mb-2.5">أضف تقييمك</h3>
+            <form onsubmit="submitProductReview(event, '${p.id}')" class="space-y-2.5">
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="rev-author" required placeholder="اسمك" class="border border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-doshop-orange" />
+                <select id="rev-rating" class="border border-slate-300 rounded-xl px-2.5 py-2 bg-white font-bold">
+                  <option value="5">5 نجوم (ممتاز)</option>
+                  <option value="4.5">4.5 نجوم</option>
+                  <option value="4">4 نجوم (جيد جداً)</option>
+                  <option value="3">3 نجوم (مقبول)</option>
+                </select>
+              </div>
+              <textarea id="rev-comment" rows="2" required placeholder="شارك رأيك حول المنتج..." class="w-full border border-slate-300 rounded-xl px-3 py-2 focus:outline-none focus:border-doshop-orange"></textarea>
+              <button type="submit" class="px-4 py-2 rounded-xl bg-doshop-navy hover:bg-doshop-slate text-white font-extrabold transition">
+                نشر التقييم
+              </button>
+            </form>
+          </div>
+        </div>
+      `;
+
+      openModal('product-detail-modal');
+    }
+
+    function submitProductReview(e, productId) {
+      e.preventDefault();
+      const prod = appState.products.find((p) => p.id === productId);
+      if (!prod) return;
+      const author = (document.getElementById('rev-author')?.value || '').trim();
+      const rating = Number(document.getElementById('rev-rating')?.value || 5);
+      const comment = (document.getElementById('rev-comment')?.value || '').trim();
+
+      if (!Array.isArray(prod.reviews)) prod.reviews = [];
+      prod.reviews.unshift({ author, rating, comment });
+
+      const avg = prod.reviews.reduce((acc, item) => acc + Number(item.rating || 5), 0) / prod.reviews.length;
+      prod.rating = Number(avg.toFixed(1));
+
+      safeWrite('doshop_store_products', appState.products);
+      runStoreFilters();
+      openProductDetail(productId);
+      showToast('تم إضافة تقييمك بنجاح');
+    }
+
+    // =========================================================================
+    // 7. WISHLIST, CART DRAWER, COUPONS & CHECKOUT (COD DEFAULT, D17/FLOUCI HIDDEN)
+    // =========================================================================
+    function toggleWishlistItem(productId) {
+      const idx = appState.wishlist.indexOf(productId);
+      if (idx >= 0) {
+        appState.wishlist.splice(idx, 1);
+        showToast('تمت الإزالة من المفضلة');
+      } else {
+        appState.wishlist.push(productId);
+        showToast('تمت الإضافة إلى المفضلة');
+      }
+      safeWrite('doshop_store_wishlist', appState.wishlist);
+      renderHeaderMeta();
+      runStoreFilters();
+    }
+
+    function openWishlistModal() {
+      const box = document.getElementById('wishlist-items-list');
+      if (!box) return;
+      if (appState.wishlist.length === 0) {
+        box.innerHTML = `<p class="text-center text-slate-400 py-8">قائمة المفضلة فارغة حالياً.</p>`;
+      } else {
+        const items = appState.products.filter((p) => appState.wishlist.includes(p.id));
+        box.innerHTML = items.map((p) => `
+          <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200">
+            <img src="${p.image}" alt="${p.name}" class="w-14 h-14 rounded-lg object-cover bg-white shrink-0" onerror="this.src='https://placehold.co/90x90/f1f5f9/0f172a?text=D'" />
+            <div class="flex-1 min-w-0">
+              <div class="font-black text-doshop-ink truncate">${p.name}</div>
+              <div class="text-doshop-orangeHover font-extrabold mt-0.5">${formatTND(p.price)}</div>
+            </div>
+            <button type="button" onclick="addProductToCart('${p.id}'); closeModal('wishlist-modal');" class="px-3 py-1.5 rounded-xl bg-doshop-orange text-doshop-navy font-black">أضف للسلة</button>
+            <button type="button" onclick="toggleWishlistItem('${p.id}'); openWishlistModal();" class="px-2.5 py-1.5 rounded-xl bg-rose-50 text-rose-600 font-bold">حذف</button>
+          </div>
+        `).join('');
+      }
+      openModal('wishlist-modal');
+    }
+
+    function toggleCartDrawer(open) {
+      const drawer = document.getElementById('cart-drawer');
+      const backdrop = document.getElementById('cart-backdrop');
+      if (!drawer || !backdrop) return;
+      if (open) {
+        drawer.classList.add('open');
+        backdrop.classList.add('open');
+      } else {
+        drawer.classList.remove('open');
+        backdrop.classList.remove('open');
+      }
+    }
+
+    function addProductToCart(productId) {
+      const prod = appState.products.find((p) => p.id === productId);
+      if (!prod || Number(prod.stock) <= 0) return;
+
+      const existing = appState.cart.find((c) => c.id === productId);
+      if (existing) {
+        if (existing.qty >= prod.stock) {
+          showToast('الكمية المطلوبة تتجاوز المخزون المتوفر');
+          return;
+        }
+        existing.qty += 1;
+      } else {
+        appState.cart.push({
+          id: prod.id,
+          name: prod.name,
+          price: Number(prod.price),
+          image: prod.image,
+          qty: 1
+        });
+      }
+
+      safeWrite('doshop_store_cart', appState.cart);
+      renderCartDrawer();
+      showToast(`تمت إضافة "${prod.name}" إلى السلة`);
+    }
+
+    function changeCartQty(productId, delta) {
+      const idx = appState.cart.findIndex((c) => c.id === productId);
+      if (idx < 0) return;
+      const prod = appState.products.find((p) => p.id === productId);
+      const maxStock = prod ? Number(prod.stock) : 99;
+      const nextQty = appState.cart[idx].qty + delta;
+
+      if (nextQty <= 0) {
+        appState.cart.splice(idx, 1);
+      } else if (nextQty <= maxStock) {
+        appState.cart[idx].qty = nextQty;
+      } else {
+        showToast('لا توجد كمية إضافية في المخزون');
+      }
+
+      safeWrite('doshop_store_cart', appState.cart);
+      renderCartDrawer();
+    }
+
+    function applyCouponCode() {
+      const input = document.getElementById('coupon-code-input');
+      const fb = document.getElementById('coupon-feedback');
+      const code = (input?.value || '').trim().toUpperCase();
+      if (!code || !fb) return;
+
+      if (COUPONS_TABLE[code]) {
+        appState.appliedCoupon = code;
+        fb.className = 'text-[11px] font-bold text-emerald-700 block';
+        fb.textContent = `تم تطبيق الكوبون: ${COUPONS_TABLE[code].label}`;
+        showToast('تم تطبيق كوبون الخصم');
+      } else {
+        appState.appliedCoupon = '';
+        fb.className = 'text-[11px] font-bold text-rose-600 block';
+        fb.textContent = 'كوبون الخصم غير صالح (جرّب DOSHOP10)';
+      }
+      renderCartDrawer();
+    }
+
+    function computeDiscountAmount(subtotal) {
+      const c = COUPONS_TABLE[appState.appliedCoupon];
+      if (!c || subtotal <= 0) return 0;
+      if (c.type === 'percent') {
+        return Number(((subtotal * c.value) / 100).toFixed(3));
+      }
+      return Math.min(subtotal, Number(c.value) || 0);
+    }
+
+    function computeShippingFee(govName, carrierId) {
+      const subtotal = appState.cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const discount = computeDiscountAmount(subtotal);
+      const netSubtotal = Math.max(0, subtotal - discount);
+
+      if (appState.cart.length > 0 && netSubtotal >= Number(appState.settings.freeShippingThreshold || 9999)) {
+        return 0;
+      }
+
+      const targetGov = govName || appState.selectedGovernorate;
+      if (appState.settings.govOverrides && typeof appState.settings.govOverrides[targetGov] === 'number') {
+        return Number(appState.settings.govOverrides[targetGov]);
+      }
+
+      if (carrierId) {
+        const chosen = appState.carriers.find((c) => c.id === carrierId && c.active !== false);
+        if (chosen) return Number(chosen.fee) || 0;
+      }
+
+      const firstActive = appState.carriers.find((c) => c.active !== false);
+      if (firstActive) return Number(firstActive.fee) || 0;
+
+      return Number(appState.settings.defaultShipping) || 7.000;
+    }
+
+    function renderCartDrawer() {
+      const badge = document.getElementById('cart-badge');
+      const countLbl = document.getElementById('drawer-items-count');
+      const listEl = document.getElementById('cart-drawer-items');
+      const subEl = document.getElementById('cart-sub-val');
+      const discRow = document.getElementById('cart-discount-row');
+      const discLbl = document.getElementById('cart-coupon-label');
+      const discVal = document.getElementById('cart-discount-val');
+      const govLbl = document.getElementById('cart-gov-name');
+      const shipEl = document.getElementById('cart-ship-val');
+      const totEl = document.getElementById('cart-total-val');
+      const chkBtn = document.getElementById('open-checkout-btn');
+
+      const qtySum = appState.cart.reduce((s, i) => s + i.qty, 0);
+      if (badge) badge.textContent = String(qtySum);
+      if (countLbl) countLbl.textContent = `(${qtySum} عنصر)`;
+
+      const subtotal = appState.cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const discount = computeDiscountAmount(subtotal);
+      const shipping = appState.cart.length > 0 ? computeShippingFee(appState.selectedGovernorate) : 0;
+      const total = Math.max(0, subtotal - discount + shipping);
+
+      if (subEl) subEl.textContent = formatTND(subtotal);
+      if (discRow && discLbl && discVal) {
+        if (discount > 0) {
+          discRow.classList.remove('hidden');
+          discRow.classList.add('flex');
+          discLbl.textContent = appState.appliedCoupon;
+          discVal.textContent = `-${formatTND(discount)}`;
+        } else {
+          discRow.classList.add('hidden');
+          discRow.classList.remove('flex');
+        }
+      }
+      if (govLbl) govLbl.textContent = appState.selectedGovernorate;
+      if (shipEl) shipEl.textContent = appState.cart.length > 0 && shipping === 0 ? 'مجاني' : formatTND(shipping);
+      if (totEl) totEl.textContent = formatTND(total);
+      if (chkBtn) chkBtn.disabled = appState.cart.length === 0;
+
+      if (!listEl) return;
+      if (appState.cart.length === 0) {
+        listEl.innerHTML = `<div class="text-center py-14 text-xs text-slate-400 font-bold">عربة التسوق فارغة حالياً.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = appState.cart.map((item) => `
+        <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
+          <img src="${item.image}" alt="${item.name}" class="w-14 h-14 rounded-lg object-cover bg-white shrink-0" onerror="this.src='https://placehold.co/90x90/f1f5f9/0f172a?text=D'" />
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-black text-doshop-ink truncate">${item.name}</div>
+            <div class="text-xs font-extrabold text-doshop-orangeHover mt-0.5">${formatTND(item.price)}</div>
+            <div class="flex items-center gap-2 mt-2">
+              <button type="button" onclick="changeCartQty('${item.id}', -1)" class="w-6 h-6 rounded-md bg-white border border-slate-300 font-black text-xs">-</button>
+              <span class="text-xs font-black">${item.qty}</span>
+              <button type="button" onclick="changeCartQty('${item.id}', 1)" class="w-6 h-6 rounded-md bg-white border border-slate-300 font-black text-xs">+</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openCheckoutModal() {
+      if (appState.cart.length === 0) return;
+      toggleCartDrawer(false);
+
+      const govSel = document.getElementById('chk-governorate');
+      if (govSel) {
+        govSel.innerHTML = GOV_DATA.map((g) => `<option value="${g.name}">${g.name} (${g.eta})</option>`).join('');
+        govSel.value = appState.selectedGovernorate;
+      }
+
+      const carrierSel = document.getElementById('chk-carrier');
+      const activeCarriers = appState.carriers.filter((c) => c.active !== false);
+      if (carrierSel) {
+        if (activeCarriers.length > 0) {
+          carrierSel.innerHTML = activeCarriers.map((c) => `<option value="${c.id}">${c.name} (${formatTND(c.fee)} - ${c.eta})</option>`).join('');
+        } else {
+          carrierSel.innerHTML = `<option value="">التوصيل القياسي (${formatTND(appState.settings.defaultShipping)})</option>`;
+        }
+      }
+
+      const nameInput = document.getElementById('chk-full-name');
+      if (nameInput && appState.customerName && !nameInput.value) {
+        nameInput.value = appState.customerName;
+      }
+
+      // Payment options: COD always enabled by default; D17 and Flouci ONLY when enabled in Admin Settings
+      const payBox = document.getElementById('chk-payment-methods');
+      if (payBox) {
+        let payHtml = `
+          <label class="flex items-center gap-2.5 p-3 rounded-xl border border-doshop-orange bg-amber-50/50 cursor-pointer">
+            <input type="radio" name="chkPayment" value="الدفع نقداً عند الاستلام (COD)" checked class="accent-doshop-orange" />
+            <div>
+              <div class="font-black text-doshop-ink">الدفع نقداً عند الاستلام (COD)</div>
+              <div class="text-[11px] text-slate-600">ادفع نقداً عند استلام طلبك</div>
+            </div>
+          </label>
+        `;
+
+        if (appState.settings.enableD17) {
+          payHtml += `
+            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-doshop-orange cursor-pointer">
+              <input type="radio" name="chkPayment" value="D17" class="accent-doshop-orange" />
+              <div>
+                <div class="font-black text-doshop-ink">D17</div>
+                <div class="text-[11px] text-slate-600">دفع إلكتروني عبر D17</div>
+              </div>
+            </label>
+          `;
+        }
+
+        if (appState.settings.enableFlouci) {
+          payHtml += `
+            <label class="flex items-center gap-2.5 p-3 rounded-xl border border-slate-200 hover:border-doshop-orange cursor-pointer">
+              <input type="radio" name="chkPayment" value="Flouci" class="accent-doshop-orange" />
+              <div>
+                <div class="font-black text-doshop-ink">Flouci</div>
+                <div class="text-[11px] text-slate-600">دفع إلكتروني عبر Flouci</div>
+              </div>
+            </label>
+          `;
+        }
+
+        payBox.innerHTML = payHtml;
+      }
+
+      refreshCheckoutTotals();
+      openModal('checkout-modal');
+    }
+
+    function refreshCheckoutTotals() {
+      const gov = document.getElementById('chk-governorate')?.value || appState.selectedGovernorate;
+      const carrierId = document.getElementById('chk-carrier')?.value || '';
+      const subtotal = appState.cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const discount = computeDiscountAmount(subtotal);
+      const shipping = appState.cart.length > 0 ? computeShippingFee(gov, carrierId) : 0;
+      const total = Math.max(0, subtotal - discount + shipping);
+
+      const subEl = document.getElementById('chk-sum-sub');
+      const discRow = document.getElementById('chk-sum-disc-row');
+      const discVal = document.getElementById('chk-sum-disc');
+      const shipEl = document.getElementById('chk-sum-ship');
+      const totEl = document.getElementById('chk-sum-total');
+
+      if (subEl) subEl.textContent = formatTND(subtotal);
+      if (discRow && discVal) {
+        if (discount > 0) {
+          discRow.classList.remove('hidden');
+          discRow.classList.add('flex');
+          discVal.textContent = `-${formatTND(discount)}`;
+        } else {
+          discRow.classList.add('hidden');
+          discRow.classList.remove('flex');
+        }
+      }
+      if (shipEl) shipEl.textContent = shipping === 0 ? 'مجاني' : formatTND(shipping);
+      if (totEl) totEl.textContent = formatTND(total);
+    }
+
+    function submitStoreOrder(e) {
+      e.preventDefault();
+      if (appState.cart.length === 0) return;
+
+      const customerName = document.getElementById('chk-full-name').value.trim();
+      const phone = document.getElementById('chk-phone').value.trim();
+      const governorate = document.getElementById('chk-governorate').value;
+      const city = document.getElementById('chk-city').value.trim();
+      const address = document.getElementById('chk-address').value.trim();
+      const carrierId = document.getElementById('chk-carrier')?.value || '';
+      const carrierObj = appState.carriers.find((c) => c.id === carrierId);
+      const carrierName = carrierObj ? carrierObj.name : 'توصيل قياسي';
+      const paymentMethod = document.querySelector('input[name="chkPayment"]:checked')?.value || 'الدفع نقداً عند الاستلام (COD)';
+
+      const subtotal = appState.cart.reduce((s, i) => s + i.price * i.qty, 0);
+      const discount = computeDiscountAmount(subtotal);
+      const shipping = computeShippingFee(governorate, carrierId);
+      const total = Math.max(0, subtotal - discount + shipping);
+
+      appState.cart.forEach((ci) => {
+        const prod = appState.products.find((p) => p.id === ci.id);
+        if (prod) {
+          prod.stock = Math.max(0, Number(prod.stock) - ci.qty);
+          prod.soldCount = (Number(prod.soldCount) || 0) + ci.qty;
+        }
+      });
+
+      const orderId = `DS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      const trackingCode = `TRK-${Math.floor(100000 + Math.random() * 900000)}TN`;
+
+      const newOrder = {
+        id: orderId,
+        date: new Date().toISOString().slice(0, 10),
+        customerName,
+        phone,
+        governorate,
+        city,
+        address,
+        carrierId,
+        carrierName,
+        trackingCode,
+        paymentMethod,
+        subtotal,
+        discount,
+        shipping,
+        total,
+        status: 'قيد التجهيز',
+        items: appState.cart.map((i) => ({ id: i.id, name: i.name, price: i.price, qty: i.qty }))
+      };
+
+      appState.orders.unshift(newOrder);
+      appState.cart = [];
+      appState.appliedCoupon = '';
+      appState.customerName = customerName;
+      appState.selectedGovernorate = governorate;
+
+      safeWrite('doshop_store_products', appState.products);
+      safeWrite('doshop_store_orders', appState.orders);
+      safeWrite('doshop_store_cart', appState.cart);
+      localStorage.setItem('doshop_customer_name', customerName);
+      localStorage.setItem('doshop_selected_gov', governorate);
+
+      pushActivityLog(`طلب جديد ${orderId} من ${customerName} (${governorate})`);
+
+      closeModal('checkout-modal');
+      document.getElementById('checkout-order-form').reset();
+      const coupIn = document.getElementById('coupon-code-input');
+      const coupFb = document.getElementById('coupon-feedback');
+      if (coupIn) coupIn.value = '';
+      if (coupFb) coupFb.classList.add('hidden');
+
+      renderHeaderMeta();
+      renderCartDrawer();
+      renderFlashDeals();
+      runStoreFilters();
+      showToast(`تم تسجيل طلبك بنجاح • رقم الطلب: ${orderId}`);
+    }
+
+    // =========================================================================
+    // 8. ACCOUNT, ORDERS TRACKING & HIDDEN ADMIN ACCESS TRIGGERS
+    // =========================================================================
+    function openAccountModal() {
+      const inp = document.getElementById('acc-name-input');
+      if (inp) inp.value = appState.customerName || '';
+      openModal('account-modal');
+    }
+
+    function saveAccountProfile() {
+      const val = (document.getElementById('acc-name-input')?.value || '').trim();
+      appState.customerName = val;
+      localStorage.setItem('doshop_customer_name', val);
+      renderHeaderMeta();
+      showToast('تم حفظ بيانات الحساب');
+    }
+
+    function openOrdersModal() {
+      const res = document.getElementById('track-code-result');
+      if (res) res.innerHTML = '';
+      renderRecentOrdersList();
+      openModal('orders-modal');
+    }
+
+    function searchOrderByCode(e) {
+      e.preventDefault();
+      const code = (document.getElementById('track-code-input')?.value || '').trim().toLowerCase();
+      const res = document.getElementById('track-code-result');
+      if (!res) return;
+
+      const found = appState.orders.find((o) =>
+        o.id.toLowerCase() === code || (o.trackingCode || '').toLowerCase() === code
+      );
+
+      if (!found) {
+        res.innerHTML = `<div class="p-3 rounded-xl bg-rose-50 text-rose-700 font-bold">لم يتم العثور على طلب بهذا الرقم.</div>`;
+        return;
+      }
+
+      res.innerHTML = `
+        <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-black text-doshop-ink">${found.id}</span>
+            <span class="px-2.5 py-0.5 rounded-full bg-doshop-orange text-doshop-navy font-black">${found.status}</span>
+          </div>
+          <div>الزبون: <strong>${found.customerName}</strong> • ${found.governorate} - ${found.city}</div>
+          <div>شركة التوصيل: <strong>${found.carrierName}</strong> • تتبع: <span class="font-mono">${found.trackingCode}</span></div>
+          <div>الإجمالي: <strong class="text-doshop-orangeHover">${formatTND(found.total)}</strong> (${found.paymentMethod})</div>
+        </div>
+      `;
+    }
+
+    function renderRecentOrdersList() {
+      const list = document.getElementById('recent-orders-list');
+      if (!list) return;
+      if (appState.orders.length === 0) {
+        list.innerHTML = `<p class="text-slate-400">لا توجد طلبات مسجلة حالياً.</p>`;
+        return;
+      }
+      list.innerHTML = appState.orders.slice(0, 8).map((o) => `
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+          <div>
+            <div class="font-black text-doshop-ink">${o.id} <span class="text-[11px] font-bold text-slate-500">(${o.date})</span></div>
+            <div class="text-[11px] text-slate-600">${o.customerName} • ${o.governorate} • ${formatTND(o.total)}</div>
+          </div>
+          <span class="px-2.5 py-1 rounded-lg bg-white border border-slate-200 font-extrabold text-[11px] text-doshop-ink">${o.status}</span>
+        </div>
+      `).join('');
+    }
+
+    // Hidden Admin Triggers: 5 rapid clicks on Doshop logo, Ctrl+Shift+A, typing 'admin', or Account link
+    function onBrandLogoClick() {
+      appState.logoTapCount += 1;
+      clearTimeout(appState.logoTapTimer);
+      appState.logoTapTimer = setTimeout(() => {
+        appState.logoTapCount = 0;
+      }, 1500);
+
+      if (appState.logoTapCount >= 5) {
+        appState.logoTapCount = 0;
+        openAdminLoginPrompt();
+      }
+    }
+
+    function openAdminLoginPrompt() {
+      closeModal('account-modal');
+      if (appState.adminAuthenticated) {
+        enterAdminWorkspace();
+        return;
+      }
+      const err = document.getElementById('admin-passcode-error');
+      const inp = document.getElementById('admin-passcode-input');
+      if (err) err.classList.add('hidden');
+      if (inp) inp.value = '';
+      openModal('admin-login-modal');
+    }
+
+    function submitAdminPasscode(e) {
+      e.preventDefault();
+      const pass = (document.getElementById('admin-passcode-input')?.value || '').trim();
+      const matchedAdmin = appState.admins.find((a) => a.passcode === pass);
+
+      if (!matchedAdmin) {
+        document.getElementById('admin-passcode-error')?.classList.remove('hidden');
+        return;
+      }
+
+      appState.adminAuthenticated = true;
+      appState.activeAdminId = matchedAdmin.id;
+      localStorage.setItem('doshop_active_admin_id', matchedAdmin.id);
+      closeModal('admin-login-modal');
+      pushActivityLog(`تسجيل دخول إلى لوحة التحكم (${matchedAdmin.name})`);
+      enterAdminWorkspace();
+      showToast(`مرحباً ${matchedAdmin.name}`);
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        e.preventDefault();
+        openAdminLoginPrompt();
+        return;
+      }
+
+      const tag = e.target && e.target.tagName ? e.target.tagName.toLowerCase() : '';
+      if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+      if (e.key && e.key.length === 1) {
+        appState.keyBuffer = (appState.keyBuffer + e.key.toLowerCase()).slice(-8);
+        if (appState.keyBuffer.endsWith('admin')) {
+          appState.keyBuffer = '';
+          openAdminLoginPrompt();
+        }
+      }
+    });
+
+    // =========================================================================
+    // 9. HIDDEN ADMIN DASHBOARD (OVERVIEW, ORDERS, PRODUCTS, BANNERS, CARRIERS, ADMINS, SETTINGS)
+    // =========================================================================
+    function enterAdminWorkspace() {
+      document.getElementById('announcement-bar')?.classList.add('hidden');
+      document.getElementById('store-header')?.classList.add('hidden');
+      document.getElementById('maintenance-banner')?.classList.add('hidden');
+      document.getElementById('storefront-main')?.classList.add('hidden');
+      document.getElementById('store-footer')?.classList.add('hidden');
+      document.getElementById('admin-workspace')?.classList.remove('hidden');
+
+      const activeAdm = appState.admins.find((a) => a.id === appState.activeAdminId) || appState.admins[0];
+      const infoEl = document.getElementById('admin-session-info');
+      if (infoEl && activeAdm) {
+        infoEl.textContent = `الحساب النشط: ${activeAdm.name} (@${activeAdm.username})`;
+      }
+
+      switchAdminTab(appState.adminTab || 'overview');
+    }
+
+    function returnToStorefront() {
+      document.getElementById('admin-workspace')?.classList.add('hidden');
+      document.getElementById('announcement-bar')?.classList.remove('hidden');
+      document.getElementById('store-header')?.classList.remove('hidden');
+      document.getElementById('storefront-main')?.classList.remove('hidden');
+      document.getElementById('store-footer')?.classList.remove('hidden');
+
+      renderHeaderMeta();
+      renderHeroAndBento();
+      renderFlashDeals();
+      renderSidebarFilters();
+      runStoreFilters();
+      renderCartDrawer();
+    }
+
+    function logoutAdmin() {
+      appState.adminAuthenticated = false;
+      returnToStorefront();
+      showToast('تم تسجيل الخروج من لوحة التحكم');
+    }
+
+    function switchAdminTab(tab) {
+      appState.adminTab = tab;
+      document.querySelectorAll('.admin-nav-btn').forEach((btn) => {
+        const active = btn.dataset.atab === tab;
+        btn.className = active
+          ? 'admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-doshop-orange text-doshop-navy'
+          : 'admin-nav-btn px-3.5 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+
+      const panel = document.getElementById('admin-tab-panel');
+      if (!panel) return;
+
+      if (tab === 'overview') renderAdminOverviewTab(panel);
+      else if (tab === 'orders') renderAdminOrdersTab(panel);
+      else if (tab === 'products') renderAdminProductsTab(panel);
+      else if (tab === 'banners') renderAdminBannersTab(panel);
+      else if (tab === 'carriers') renderAdminCarriersTab(panel);
+      else if (tab === 'admins') renderAdminAccountsTab(panel);
+      else if (tab === 'settings') renderAdminSettingsTab(panel);
+    }
+
+    // --- Tab 1: Overview & Analytics ---
+    function renderAdminOverviewTab(panel) {
+      const revenue = appState.orders.reduce((s, o) => s + (Number(o.total) || 0), 0);
+      const ordersCount = appState.orders.length;
+      const aov = ordersCount > 0 ? revenue / ordersCount : 0;
+
+      const estimatedProfit = appState.orders.reduce((sum, ord) => {
+        const itemsCost = (ord.items || []).reduce((cSum, it) => {
+          const prod = appState.products.find((p) => p.id === it.id);
+          const unitCost = prod ? Number(prod.costPrice || prod.price * 0.55) : Number(it.price) * 0.55;
+          return cSum + unitCost * (Number(it.qty) || 1);
+        }, 0);
+        return sum + Math.max(0, (Number(ord.subtotal) || 0) - (Number(ord.discount) || 0) - itemsCost);
+      }, 0);
+
+      const govMap = {};
+      appState.orders.forEach((o) => {
+        govMap[o.governorate] = (govMap[o.governorate] || 0) + 1;
+      });
+      const topGovs = Object.entries(govMap).sort((a, b) => b[1] - a[1]);
+
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+            <div class="text-xs font-bold text-slate-500">إجمالي الإيرادات</div>
+            <div class="text-2xl font-black text-doshop-ink mt-1">${formatTND(revenue)}</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+            <div class="text-xs font-bold text-slate-500">عدد الطلبات</div>
+            <div class="text-2xl font-black text-doshop-ink mt-1">${ordersCount}</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+            <div class="text-xs font-bold text-slate-500">متوسط قيمة الطلب (AOV)</div>
+            <div class="text-2xl font-black text-doshop-ink mt-1">${formatTND(aov)}</div>
+          </div>
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
+            <div class="text-xs font-bold text-slate-500">الربح التقديري</div>
+            <div class="text-2xl font-black text-emerald-700 mt-1">${formatTND(estimatedProfit)}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 text-xs">
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+            <h3 class="font-black text-sm text-doshop-ink">توزيع الطلبات حسب الولايات</h3>
+            ${topGovs.length === 0 ? `<p class="text-slate-400">لا توجد بيانات طلبات بعد.</p>` : topGovs.map(([gov, cnt]) => {
+              const pct = ordersCount > 0 ? Math.round((cnt / ordersCount) * 100) : 0;
+              return `
+                <div class="space-y-1">
+                  <div class="flex justify-between font-bold">
+                    <span>${gov}</span>
+                    <span>${cnt} طلب (${pct}%)</span>
+                  </div>
+                  <div class="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full bg-doshop-orange rounded-full" style="width:${pct}%"></div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="bg-white p-5 rounded-2xl border border-slate-200 space-y-2.5">
+            <h3 class="font-black text-sm text-doshop-ink">سجل النشاطات</h3>
+            <div class="space-y-1.5 max-h-60 overflow-y-auto">
+              ${appState.activityLogs.map((log) => `
+                <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-100 font-semibold text-slate-700">${log}</div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // --- Tab 2: Orders & Shipping ---
+    function renderAdminOrdersTab(panel) {
+      const statuses = ['قيد التجهيز', 'تم الشحن', 'تم التوصيل', 'مرتجع / ملغى'];
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 text-xs">
+          <div class="xl:col-span-4 bg-white p-5 rounded-2xl border border-slate-200 h-fit">
+            <h3 class="font-black text-sm text-doshop-ink mb-3">إضافة طلب يدوي</h3>
+            <form onsubmit="createManualOrder(event)" class="space-y-2.5">
+              <input type="text" id="man-cust-name" required placeholder="اسم الزبون *" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              <div class="grid grid-cols-2 gap-2">
+                <input type="tel" id="man-cust-phone" required pattern="[0-9]{8}" maxlength="8" placeholder="الهاتف (8 أرقام) *" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-left font-mono" />
+                <select id="man-cust-gov" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 bg-white font-bold">
+                  ${GOV_DATA.map((g) => `<option value="${g.name}">${g.name}</option>`).join('')}
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="man-cust-city" required placeholder="المعتمدية *" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+                <select id="man-prod-id" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 bg-white font-bold">
+                  ${appState.products.map((p) => `<option value="${p.id}">${p.name} (${formatTND(p.price)})</option>`).join('')}
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="number" id="man-qty" min="1" value="1" required class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+                <select id="man-carrier-id" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 bg-white font-bold">
+                  ${appState.carriers.map((c) => `<option value="${c.id}">${c.name}</option>`).join('')}
+                </select>
+              </div>
+              <input type="text" id="man-cust-addr" required placeholder="العنوان التفصيلي *" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black transition">
+                إنشاء الطلب
+              </button>
+            </form>
+          </div>
+
+          <div class="xl:col-span-8 bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="font-black text-sm text-doshop-ink">الطلبات والشحنات (${appState.orders.length})</h3>
+              <button type="button" onclick="exportOrdersCSV()" class="px-3.5 py-1.5 rounded-xl bg-doshop-navy hover:bg-doshop-slate text-white font-extrabold transition">
+                تصدير CSV
+              </button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-right border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-500">
+                    <th class="py-2 px-2">الطلب</th>
+                    <th class="py-2 px-2">الزبون / الوجهة</th>
+                    <th class="py-2 px-2">شركة التوصيل</th>
+                    <th class="py-2 px-2">كود التتبع</th>
+                    <th class="py-2 px-2">الإجمالي</th>
+                    <th class="py-2 px-2">الحالة</th>
+                    <th class="py-2 px-2">وصل</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${appState.orders.map((o, idx) => `
+                    <tr>
+                      <td class="py-2.5 px-2 font-mono font-bold">${o.id}</td>
+                      <td class="py-2.5 px-2">
+                        <div class="font-bold text-doshop-ink">${o.customerName}</div>
+                        <div class="text-[11px] text-slate-500">${o.governorate} - ${o.city} (${o.phone})</div>
+                      </td>
+                      <td class="py-2.5 px-2">
+                        <select onchange="assignOrderCarrier(${idx}, this.value)" class="border border-slate-300 rounded-lg px-2 py-1 bg-white font-bold">
+                          ${appState.carriers.map((c) => `<option value="${c.id}" ${o.carrierId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                        </select>
+                      </td>
+                      <td class="py-2.5 px-2">
+                        <input type="text" value="${o.trackingCode || ''}" onchange="updateOrderTracking(${idx}, this.value)" dir="ltr" class="w-28 border border-slate-300 rounded-lg px-2 py-1 font-mono text-left" />
+                      </td>
+                      <td class="py-2.5 px-2 font-black text-doshop-orangeHover">${formatTND(o.total)}</td>
+                      <td class="py-2.5 px-2">
+                        <select onchange="changeOrderStatus(${idx}, this.value)" class="border border-slate-300 rounded-lg px-2 py-1 bg-white font-bold">
+                          ${statuses.map((st) => `<option value="${st}" ${o.status === st ? 'selected' : ''}>${st}</option>`).join('')}
+                        </select>
+                      </td>
+                      <td class="py-2.5 px-2">
+                        <button type="button" onclick="printTunisianSlip(${idx})" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">
+                          طباعة
+                        </button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function createManualOrder(e) {
+      e.preventDefault();
+      const customerName = document.getElementById('man-cust-name').value.trim();
+      const phone = document.getElementById('man-cust-phone').value.trim();
+      const governorate = document.getElementById('man-cust-gov').value;
+      const city = document.getElementById('man-cust-city').value.trim();
+      const prodId = document.getElementById('man-prod-id').value;
+      const qty = Math.max(1, Number(document.getElementById('man-qty').value) || 1);
+      const carrierId = document.getElementById('man-carrier-id').value;
+      const address = document.getElementById('man-cust-addr').value.trim();
+
+      const prod = appState.products.find((p) => p.id === prodId) || appState.products[0];
+      if (!prod) return;
+
+      const carrier = appState.carriers.find((c) => c.id === carrierId) || appState.carriers[0];
+      const subtotal = Number(prod.price) * qty;
+      const shipping = computeShippingFee(governorate, carrier ? carrier.id : '');
+      const total = subtotal + shipping;
+
+      prod.stock = Math.max(0, Number(prod.stock) - qty);
+      safeWrite('doshop_store_products', appState.products);
+
+      const id = `DS-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+      appState.orders.unshift({
+        id,
+        date: new Date().toISOString().slice(0, 10),
+        customerName,
+        phone,
+        governorate,
+        city,
+        address,
+        carrierId: carrier ? carrier.id : '',
+        carrierName: carrier ? carrier.name : 'توصيل قياسي',
+        trackingCode: `TRK-${Math.floor(100000 + Math.random() * 900000)}TN`,
+        paymentMethod: 'الدفع نقداً عند الاستلام (COD)',
+        subtotal,
+        discount: 0,
+        shipping,
+        total,
+        status: 'قيد التجهيز',
+        items: [{ id: prod.id, name: prod.name, price: prod.price, qty }]
+      });
+
+      safeWrite('doshop_store_orders', appState.orders);
+      pushActivityLog(`إنشاء طلب يدوي ${id} باسم ${customerName}`);
+      renderAdminOrdersTab(document.getElementById('admin-tab-panel'));
+      showToast(`تم إنشاء الطلب ${id}`);
+    }
+
+    function changeOrderStatus(idx, status) {
+      if (!appState.orders[idx]) return;
+      appState.orders[idx].status = status;
+      safeWrite('doshop_store_orders', appState.orders);
+      pushActivityLog(`تحديث حالة الطلب ${appState.orders[idx].id} إلى (${status})`);
+      showToast('تم تحديث حالة الطلب');
+    }
+
+    function assignOrderCarrier(idx, carrierId) {
+      if (!appState.orders[idx]) return;
+      const carrier = appState.carriers.find((c) => c.id === carrierId);
+      appState.orders[idx].carrierId = carrierId;
+      appState.orders[idx].carrierName = carrier ? carrier.name : 'توصيل قياسي';
+      safeWrite('doshop_store_orders', appState.orders);
+      showToast('تم تعيين شركة التوصيل للطلب');
+    }
+
+    function updateOrderTracking(idx, code) {
+      if (!appState.orders[idx]) return;
+      appState.orders[idx].trackingCode = code.trim();
+      safeWrite('doshop_store_orders', appState.orders);
+      showToast('تم حفظ كود التتبع');
+    }
+
+    function printTunisianSlip(idx) {
+      const o = appState.orders[idx];
+      if (!o) return;
+      const area = document.getElementById('printable-slip-area');
+      if (!area) return;
+      area.classList.remove('hidden');
+      area.innerHTML = `
+        <div dir="rtl" style="font-family: 'Cairo', sans-serif; max-width: 720px; margin: 0 auto; border: 2px solid #0f172a; padding: 24px; border-radius: 12px;">
+          <div style="display:flex; justify-content:space-between; border-bottom:1px solid #cbd5e1; padding-bottom:12px; margin-bottom:16px;">
+            <div>
+              <h2 style="margin:0; font-size:22px; font-weight:900;">Doshop — وصل تسليم</h2>
+              <div style="font-size:12px; color:#475569;">رقم الطلب: ${o.id} • التاريخ: ${o.date}</div>
+            </div>
+            <div style="text-align:left; font-size:12px; font-weight:800;">
+              <div>شركة التوصيل: ${o.carrierName}</div>
+              <div>كود التتبع: ${o.trackingCode || '-'}</div>
+            </div>
+          </div>
+          <div style="font-size:13px; margin-bottom:16px; line-height:1.8;">
+            <div><strong>الزبون:</strong> ${o.customerName} — <strong>الهاتف:</strong> ${o.phone}</div>
+            <div><strong>العنوان:</strong> ${o.governorate}، ${o.city} — ${o.address}</div>
+            <div><strong>طريقة الدفع:</strong> ${o.paymentMethod}</div>
+          </div>
+          <table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:16px;">
+            <thead>
+              <tr style="background:#f1f5f9;">
+                <th style="border:1px solid #cbd5e1; padding:8px; text-align:right;">المنتج</th>
+                <th style="border:1px solid #cbd5e1; padding:8px;">الكمية</th>
+                <th style="border:1px solid #cbd5e1; padding:8px;">السعر</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(o.items || []).map((it) => `
+                <tr>
+                  <td style="border:1px solid #cbd5e1; padding:8px;">${it.name}</td>
+                  <td style="border:1px solid #cbd5e1; padding:8px; text-align:center;">${it.qty}</td>
+                  <td style="border:1px solid #cbd5e1; padding:8px; text-align:center;">${formatTND(it.price)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="font-size:14px; font-weight:900; text-align:left;">
+            التوصيل: ${formatTND(o.shipping)} | الإجمالي المستحق: ${formatTND(o.total)}
+          </div>
+        </div>
+      `;
+      window.print();
+      setTimeout(() => {
+        area.classList.add('hidden');
+        area.innerHTML = '';
+      }, 400);
+    }
+
+    function exportOrdersCSV() {
+      const headers = ['OrderID', 'Date', 'Customer', 'Phone', 'Governorate', 'City', 'Carrier', 'Tracking', 'Payment', 'Total', 'Status'];
+      const rows = appState.orders.map((o) => [
+        o.id, o.date, o.customerName, o.phone, o.governorate, o.city, o.carrierName, o.trackingCode || '', o.paymentMethod, o.total, o.status
+      ]);
+      downloadCSVFile('doshop-orders.csv', [headers, ...rows]);
+    }
+
+    // --- Tab 3: Products & Inventory ---
+    function renderAdminProductsTab(panel) {
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-5 text-xs">
+          <div class="xl:col-span-4 bg-white p-5 rounded-2xl border border-slate-200 h-fit">
+            <h3 class="font-black text-sm text-doshop-ink mb-3">إضافة منتج جديد</h3>
+            <form onsubmit="createAdminProduct(event)" class="space-y-2.5">
+              <input type="text" id="np-name" required placeholder="اسم المنتج *" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              <div class="grid grid-cols-2 gap-2">
+                <select id="np-cat" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 bg-white font-bold">
+                  ${STORE_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join('')}
+                </select>
+                <select id="np-aud" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 bg-white font-bold">
+                  <option value="نساء">نساء</option>
+                  <option value="رجال">رجال</option>
+                  <option value="للجنسين">للجنسين</option>
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="np-brand" required value="Maison Tunis" placeholder="الماركة *" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+                <input type="number" step="0.5" min="10" max="150" id="np-price" required value="49" placeholder="السعر (10-150)" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input type="number" min="0" id="np-stock" required value="25" placeholder="المخزون" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+                <input type="number" step="0.5" min="0" id="np-cost" value="25" placeholder="سعر التكلفة" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              </div>
+              <input type="url" id="np-image" required value="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&q=80" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-left" />
+              <input type="text" id="np-notes" placeholder="المكونات أو النوتات العطرية" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              <textarea id="np-desc" rows="2" required placeholder="وصف المنتج *" class="w-full border border-slate-300 rounded-xl px-3 py-2"></textarea>
+              <label class="flex items-center gap-2 font-bold cursor-pointer">
+                <input type="checkbox" id="np-flash" class="accent-doshop-orange" />
+                <span>إدراج ضمن العروض الخاطفة</span>
+              </label>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black transition">
+                حفظ المنتج
+              </button>
+            </form>
+          </div>
+
+          <div class="xl:col-span-8 bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="font-black text-sm text-doshop-ink">المنتجات والمخزون (${appState.products.length})</h3>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" onclick="bulkRestockProducts(20)" class="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 font-extrabold">
+                  +20 للمخزون المنخفض
+                </button>
+                <button type="button" onclick="exportProductsCSV()" class="px-3 py-1.5 rounded-xl bg-doshop-navy text-white font-extrabold">
+                  تصدير CSV
+                </button>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-right border-collapse">
+                <thead>
+                  <tr class="border-b border-slate-200 text-slate-500">
+                    <th class="py-2 px-2">المنتج</th>
+                    <th class="py-2 px-2">الفئة</th>
+                    <th class="py-2 px-2">السعر (د.ت)</th>
+                    <th class="py-2 px-2">المخزون</th>
+                    <th class="py-2 px-2">خاطف</th>
+                    <th class="py-2 px-2">حذف</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${appState.products.map((p, idx) => `
+                    <tr>
+                      <td class="py-2 px-2 font-bold">${p.name}</td>
+                      <td class="py-2 px-2 text-slate-500">${p.category} • ${p.audience}</td>
+                      <td class="py-2 px-2">
+                        <input type="number" step="0.5" min="10" max="150" value="${p.price}" onchange="editProductField(${idx}, 'price', this.value)" class="w-20 border border-slate-300 rounded-lg px-2 py-1 font-bold" />
+                      </td>
+                      <td class="py-2 px-2">
+                        <input type="number" min="0" value="${p.stock}" onchange="editProductField(${idx}, 'stock', this.value)" class="w-16 border border-slate-300 rounded-lg px-2 py-1 font-bold" />
+                      </td>
+                      <td class="py-2 px-2">
+                        <input type="checkbox" ${p.isFlashDeal ? 'checked' : ''} onchange="editProductField(${idx}, 'isFlashDeal', this.checked)" class="accent-doshop-orange" />
+                      </td>
+                      <td class="py-2 px-2">
+                        <button type="button" onclick="removeAdminProduct(${idx})" class="text-rose-600 hover:underline font-bold">حذف</button>
+                      </td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function createAdminProduct(e) {
+      e.preventDefault();
+      const name = document.getElementById('np-name').value.trim();
+      const category = document.getElementById('np-cat').value;
+      const audience = document.getElementById('np-aud').value;
+      const brand = document.getElementById('np-brand').value.trim();
+      const price = Math.min(150, Math.max(10, Number(document.getElementById('np-price').value) || 10));
+      const stock = Math.max(0, Number(document.getElementById('np-stock').value) || 0);
+      const costPrice = Math.max(0, Number(document.getElementById('np-cost').value) || price * 0.55);
+      const image = document.getElementById('np-image').value.trim();
+      const notes = document.getElementById('np-notes').value.trim();
+      const description = document.getElementById('np-desc').value.trim();
+      const isFlashDeal = Boolean(document.getElementById('np-flash')?.checked);
+
+      appState.products.unshift({
+        id: `p-${Date.now()}`,
+        name,
+        brand,
+        category,
+        audience,
+        price,
+        oldPrice: Math.min(150, Number((price * 1.2).toFixed(3))),
+        costPrice,
+        stock,
+        soldCount: 15,
+        rating: 4.8,
+        express: true,
+        isFlashDeal,
+        image,
+        notes,
+        description,
+        reviews: []
+      });
+
+      safeWrite('doshop_store_products', appState.products);
+      pushActivityLog(`إضافة منتج جديد: ${name}`);
+      renderAdminProductsTab(document.getElementById('admin-tab-panel'));
+      showToast('تمت إضافة المنتج بنجاح');
+    }
+
+    function editProductField(idx, field, rawVal) {
+      const prod = appState.products[idx];
+      if (!prod) return;
+      if (field === 'price') {
+        const num = Number(rawVal);
+        if (!Number.isFinite(num) || num < 10 || num > 150) {
+          showToast('يجب أن يكون السعر بين 10 و150 د.ت');
+          renderAdminProductsTab(document.getElementById('admin-tab-panel'));
+          return;
+        }
+        prod.price = num;
+      } else if (field === 'stock') {
+        prod.stock = Math.max(0, Number(rawVal) || 0);
+      } else if (field === 'isFlashDeal') {
+        prod.isFlashDeal = Boolean(rawVal);
+      }
+      safeWrite('doshop_store_products', appState.products);
+      showToast('تم حفظ التعديل');
+    }
+
+    function bulkRestockProducts(addQty) {
+      appState.products.forEach((p) => {
+        if (Number(p.stock) < 15) {
+          p.stock = Number(p.stock) + addQty;
+        }
+      });
+      safeWrite('doshop_store_products', appState.products);
+      pushActivityLog(`تزويد المخزون المنخفض بـ +${addQty} قطعة`);
+      renderAdminProductsTab(document.getElementById('admin-tab-panel'));
+      showToast('تم تحديث المخزون المنخفض');
+    }
+
+    function removeAdminProduct(idx) {
+      const removed = appState.products[idx];
+      appState.products.splice(idx, 1);
+      safeWrite('doshop_store_products', appState.products);
+      if (removed) pushActivityLog(`حذف المنتج: ${removed.name}`);
+      renderAdminProductsTab(document.getElementById('admin-tab-panel'));
+      showToast('تم حذف المنتج');
+    }
+
+    function exportProductsCSV() {
+      const headers = ['ID', 'Name', 'Brand', 'Category', 'Audience', 'Price_TND', 'Stock', 'Rating'];
+      const rows = appState.products.map((p) => [p.id, p.name, p.brand, p.category, p.audience, p.price, p.stock, p.rating]);
+      downloadCSVFile('doshop-products.csv', [headers, ...rows]);
+    }
+
+    // --- Tab 4: Banners & Storefront Controls ---
+    function renderAdminBannersTab(panel) {
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 text-xs">
+          <div class="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+            <h3 class="font-black text-sm text-doshop-ink">شرائح السلايدر الرئيسي</h3>
+            <form onsubmit="addHeroSlide(event)" class="space-y-2.5 pb-3 border-b border-slate-100">
+              <input type="text" id="ns-title" required placeholder="عنوان الشريحة *" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              <input type="text" id="ns-sub" required placeholder="وصف مختصر *" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="ns-badge" value="عرض مميز" placeholder="الشارة" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+                <select id="ns-cat" class="w-full border border-slate-300 rounded-xl px-2.5 py-2 bg-white font-bold">
+                  <option value="all">كل الأقسام</option>
+                  ${STORE_CATEGORIES.map((c) => `<option value="${c}">${c}</option>`).join('')}
+                </select>
+              </div>
+              <input type="url" id="ns-img" required value="https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=1400&q=80" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-left" />
+              <button type="submit" class="w-full py-2 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black">إضافة شريحة</button>
+            </form>
+
+            <div class="space-y-2">
+              ${appState.slides.map((s, idx) => `
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2">
+                  <div class="min-w-0">
+                    <div class="font-black text-doshop-ink truncate">${s.title}</div>
+                    <div class="text-[11px] text-slate-500 truncate">${s.subtitle}</div>
+                  </div>
+                  ${appState.slides.length > 1 ? `<button type="button" onclick="deleteHeroSlide(${idx})" class="text-rose-600 font-bold shrink-0">حذف</button>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 space-y-4 h-fit">
+            <h3 class="font-black text-sm text-doshop-ink">شريط الإعلانات ووضع الصيانة</h3>
+            <form onsubmit="saveStorefrontControls(event)" class="space-y-3">
+              <div>
+                <label class="block font-bold mb-1">نص الشريط العلوي</label>
+                <input type="text" id="sf-ann-text" value="${appState.settings.announcementText}" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              </div>
+              <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                <div>
+                  <div class="font-black text-doshop-ink">وضع الصيانة المؤقتة</div>
+                  <div class="text-[11px] text-slate-500">إظهار تنبيه الصيانة في واجهة المتجر</div>
+                </div>
+                <input type="checkbox" id="sf-maint" ${appState.settings.maintenanceMode ? 'checked' : ''} class="w-4 h-4 accent-doshop-orange" />
+              </label>
+              <button type="submit" class="px-4 py-2.5 rounded-xl bg-doshop-navy text-white font-extrabold">حفظ إعدادات الواجهة</button>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function addHeroSlide(e) {
+      e.preventDefault();
+      appState.slides.push({
+        id: `sl-${Date.now()}`,
+        title: document.getElementById('ns-title').value.trim(),
+        subtitle: document.getElementById('ns-sub').value.trim(),
+        badge: document.getElementById('ns-badge').value.trim() || 'Doshop',
+        ctaCategory: document.getElementById('ns-cat').value,
+        image: document.getElementById('ns-img').value.trim()
+      });
+      safeWrite('doshop_store_slides', appState.slides);
+      renderAdminBannersTab(document.getElementById('admin-tab-panel'));
+      showToast('تمت إضافة الشريحة');
+    }
+
+    function deleteHeroSlide(idx) {
+      if (appState.slides.length <= 1) return;
+      appState.slides.splice(idx, 1);
+      appState.currentSlide = 0;
+      safeWrite('doshop_store_slides', appState.slides);
+      renderAdminBannersTab(document.getElementById('admin-tab-panel'));
+      showToast('تم حذف الشريحة');
+    }
+
+    function saveStorefrontControls(e) {
+      e.preventDefault();
+      appState.settings.announcementText = (document.getElementById('sf-ann-text')?.value || '').trim();
+      appState.settings.maintenanceMode = Boolean(document.getElementById('sf-maint')?.checked);
+      safeWrite('doshop_store_settings', appState.settings);
+      pushActivityLog('تحديث إعدادات البانرات والواجهة');
+      showToast('تم حفظ إعدادات الواجهة');
+    }
+
+    // --- Tab 5: Delivery Carriers Management ---
+    function renderAdminCarriersTab(panel) {
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 text-xs">
+          <div class="lg:col-span-4 bg-white p-5 rounded-2xl border border-slate-200 h-fit">
+            <h3 class="font-black text-sm text-doshop-ink mb-3">إضافة شركة توصيل</h3>
+            <form onsubmit="addDeliveryCarrier(event)" class="space-y-3">
+              <div>
+                <label class="block font-bold mb-1">اسم الشركة *</label>
+                <input type="text" id="nc-name" required placeholder="مثال: First Delivery" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              </div>
+              <div>
+                <label class="block font-bold mb-1">رسوم التوصيل (د.ت) *</label>
+                <input type="number" step="0.5" min="0" id="nc-fee" required value="7.000" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              </div>
+              <div>
+                <label class="block font-bold mb-1">مدة التوصيل المتوقعة *</label>
+                <input type="text" id="nc-eta" required value="24 - 48 ساعة" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              </div>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black">
+                إضافة الشركة
+              </button>
+            </form>
+          </div>
+
+          <div class="lg:col-span-8 space-y-3">
+            ${appState.carriers.map((c, idx) => `
+              <div class="bg-white p-4 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div class="font-black text-sm text-doshop-ink">${c.name}</div>
+                  <div class="text-slate-500 mt-0.5">المدة: ${c.eta} • الحالة: ${c.active !== false ? 'نشطة' : 'متوقفة'}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="number" step="0.5" min="0" value="${c.fee}" onchange="updateCarrierFeeValue(${idx}, this.value)" class="w-24 border border-slate-300 rounded-lg px-2 py-1 font-bold" />
+                  <button type="button" onclick="toggleCarrierActive(${idx})" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 font-extrabold">
+                    ${c.active !== false ? 'إيقاف' : 'تفعيل'}
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function addDeliveryCarrier(e) {
+      e.preventDefault();
+      const name = document.getElementById('nc-name').value.trim();
+      const fee = Math.max(0, Number(document.getElementById('nc-fee').value) || 0);
+      const eta = document.getElementById('nc-eta').value.trim() || '24 - 48 ساعة';
+      appState.carriers.push({ id: `car-${Date.now()}`, name, fee, eta, active: true });
+      safeWrite('doshop_store_carriers', appState.carriers);
+      pushActivityLog(`إضافة شركة توصيل: ${name}`);
+      renderAdminCarriersTab(document.getElementById('admin-tab-panel'));
+      showToast('تمت إضافة شركة التوصيل');
+    }
+
+    function updateCarrierFeeValue(idx, val) {
+      if (!appState.carriers[idx]) return;
+      appState.carriers[idx].fee = Math.max(0, Number(val) || 0);
+      safeWrite('doshop_store_carriers', appState.carriers);
+      showToast('تم تحديث رسوم التوصيل');
+    }
+
+    function toggleCarrierActive(idx) {
+      if (!appState.carriers[idx]) return;
+      appState.carriers[idx].active = !(appState.carriers[idx].active !== false);
+      safeWrite('doshop_store_carriers', appState.carriers);
+      renderAdminCarriersTab(document.getElementById('admin-tab-panel'));
+      showToast('تم تحديث حالة شركة التوصيل');
+    }
+
+    // --- Tab 6: Admin Accounts & Password Management ---
+    function renderAdminAccountsTab(panel) {
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 text-xs">
+          <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-slate-200 h-fit">
+            <h3 class="font-black text-sm text-doshop-ink mb-3">إضافة حساب أدمن جديد</h3>
+            <form onsubmit="addNewAdminAccount(event)" class="space-y-3">
+              <div>
+                <label class="block font-bold mb-1">اسم المسؤول *</label>
+                <input type="text" id="na-name" required placeholder="مثال: منى — متابعة الطلبات" class="w-full border border-slate-300 rounded-xl px-3 py-2" />
+              </div>
+              <div>
+                <label class="block font-bold mb-1">اسم المستخدم *</label>
+                <input type="text" id="na-user" required placeholder="mona" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-left font-mono" />
+              </div>
+              <div>
+                <label class="block font-bold mb-1">كلمة المرور *</label>
+                <input type="text" id="na-pass" required minlength="4" placeholder="كلمة المرور" dir="ltr" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-left font-mono" />
+              </div>
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-doshop-navy hover:bg-doshop-slate text-white font-black transition">
+                إضافة الحساب
+              </button>
+            </form>
+          </div>
+
+          <div class="lg:col-span-7 space-y-3">
+            ${appState.admins.map((acc, idx) => {
+              const isActive = acc.id === appState.activeAdminId;
+              return `
+                <div class="bg-white p-4 rounded-2xl border ${isActive ? 'border-doshop-orange' : 'border-slate-200'} space-y-3">
+                  <div class="flex items-center justify-between gap-2">
+                    <div>
+                      <span class="font-black text-sm text-doshop-ink">${acc.name}</span>
+                      <span class="font-mono text-slate-500 mr-1">(@${acc.username})</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      ${!isActive
+                        ? `<button type="button" onclick="switchActiveAdmin('${acc.id}')" class="px-3 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 font-bold">تفعيل الحساب</button>`
+                        : `<span class="px-2.5 py-0.5 rounded-full bg-amber-100 text-doshop-ink font-black">الحساب النشط</span>`
+                      }
+                      ${appState.admins.length > 1 && !isActive
+                        ? `<button type="button" onclick="removeAdminAccount(${idx})" class="text-rose-600 hover:underline font-bold">حذف</button>`
+                        : ''
+                      }
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <input type="text" id="adm-pwd-${idx}" value="${acc.passcode}" dir="ltr" class="flex-1 border border-slate-300 rounded-lg px-2.5 py-1.5 font-mono text-left" />
+                    <button type="button" onclick="changeAdminAccountPassword(${idx})" class="px-3.5 py-1.5 rounded-lg bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black">
+                      تغيير كلمة المرور
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function addNewAdminAccount(e) {
+      e.preventDefault();
+      const name = document.getElementById('na-name').value.trim();
+      const username = document.getElementById('na-user').value.trim();
+      const passcode = document.getElementById('na-pass').value.trim();
+      appState.admins.push({ id: `adm-${Date.now()}`, name, username, passcode });
+      safeWrite('doshop_store_admins', appState.admins);
+      pushActivityLog(`إضافة حساب أدمن جديد: ${name}`);
+      renderAdminAccountsTab(document.getElementById('admin-tab-panel'));
+      showToast('تمت إضافة حساب الأدمن');
+    }
+
+    function switchActiveAdmin(id) {
+      appState.activeAdminId = id;
+      localStorage.setItem('doshop_active_admin_id', id);
+      const adm = appState.admins.find((a) => a.id === id);
+      const infoEl = document.getElementById('admin-session-info');
+      if (infoEl && adm) infoEl.textContent = `الحساب النشط: ${adm.name} (@${adm.username})`;
+      renderAdminAccountsTab(document.getElementById('admin-tab-panel'));
+      showToast('تم تبديل الحساب النشط');
+    }
+
+    function changeAdminAccountPassword(idx) {
+      const inp = document.getElementById(`adm-pwd-${idx}`);
+      const nextPass = (inp?.value || '').trim();
+      if (nextPass.length < 4) {
+        showToast('يجب أن تتكون كلمة المرور من 4 أحرف على الأقل');
+        return;
+      }
+      appState.admins[idx].passcode = nextPass;
+      safeWrite('doshop_store_admins', appState.admins);
+      pushActivityLog(`تغيير كلمة مرور الحساب: ${appState.admins[idx].name}`);
+      showToast('تم تحديث كلمة المرور بنجاح');
+    }
+
+    function removeAdminAccount(idx) {
+      const removed = appState.admins[idx];
+      appState.admins.splice(idx, 1);
+      safeWrite('doshop_store_admins', appState.admins);
+      if (removed) pushActivityLog(`حذف حساب الأدمن: ${removed.name}`);
+      renderAdminAccountsTab(document.getElementById('admin-tab-panel'));
+      showToast('تم حذف الحساب');
+    }
+
+    // --- Tab 7: Payment, Shipping & Security Settings ---
+    function renderAdminSettingsTab(panel) {
+      const overrides = appState.settings.govOverrides || {};
+      panel.innerHTML = `
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 text-xs">
+          <div class="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 space-y-4 h-fit">
+            <h3 class="font-black text-sm text-doshop-ink">طرق الدفع والشحن</h3>
+            <form onsubmit="savePaymentAndShippingSettings(event)" class="space-y-3.5">
+              <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 font-extrabold text-emerald-900">
+                الدفع نقداً عند الاستلام (COD): مفعّل افتراضياً للزبائن
+              </div>
+
+              <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                <div>
+                  <div class="font-black text-doshop-ink">إظهار وتفعيل D17 للزبائن</div>
+                  <div class="text-[11px] text-slate-500">مخفي افتراضياً ولا يظهر في الدفع إلا عند التفعيل</div>
+                </div>
+                <input type="checkbox" id="cfg-d17" ${appState.settings.enableD17 ? 'checked' : ''} class="w-4 h-4 accent-doshop-orange" />
+              </label>
+
+              <label class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer">
+                <div>
+                  <div class="font-black text-doshop-ink">إظهار وتفعيل Flouci للزبائن</div>
+                  <div class="text-[11px] text-slate-500">مخفي افتراضياً ولا يظهر في الدفع إلا عند التفعيل</div>
+                </div>
+                <input type="checkbox" id="cfg-flouci" ${appState.settings.enableFlouci ? 'checked' : ''} class="w-4 h-4 accent-doshop-orange" />
+              </label>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-bold mb-1">رسوم التوصيل الافتراضية (د.ت)</label>
+                  <input type="number" step="0.5" min="0" id="cfg-def-ship" value="${appState.settings.defaultShipping}" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-bold" />
+                </div>
+                <div>
+                  <label class="block font-bold mb-1">حد الشحن المجاني (د.ت)</label>
+                  <input type="number" step="1" min="0" id="cfg-free-ship" value="${appState.settings.freeShippingThreshold}" class="w-full border border-slate-300 rounded-xl px-3 py-2 font-bold" />
+                </div>
+              </div>
+
+              <button type="submit" class="w-full py-2.5 rounded-xl bg-doshop-orange hover:bg-doshop-orangeHover text-doshop-navy font-black">
+                حفظ إعدادات الدفع والشحن
+              </button>
+            </form>
+
+            <div class="pt-4 border-t border-slate-100 space-y-2">
+              <div class="font-black text-sm text-doshop-ink">النسخة الاحتياطية والأمان</div>
+              <button type="button" onclick="downloadStoreBackupJSON()" class="w-full py-2 rounded-xl bg-doshop-navy text-white font-extrabold">
+                تحميل نسخة احتياطية كاملة (JSON)
+              </button>
+            </div>
+          </div>
+
+          <div class="lg:col-span-6 bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+            <h3 class="font-black text-sm text-doshop-ink">تخصيص رسوم الشحن حسب الولاية (اختياري)</h3>
+            <p class="text-[11px] text-slate-500">اترك الحقل فارغاً لاستخدام القيمة الافتراضية أو رسوم شركة التوصيل.</p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-96 overflow-y-auto p-1">
+              ${GOV_DATA.map((g) => {
+                const val = typeof overrides[g.name] === 'number' ? overrides[g.name] : '';
+                return `
+                  <div class="p-2 rounded-xl bg-slate-50 border border-slate-200">
+                    <label class="block font-bold text-[11px] mb-1">${g.name}</label>
+                    <input type="number" step="0.5" min="0" value="${val}" placeholder="${appState.settings.defaultShipping}" onchange="setGovernorateOverride('${g.name}', this.value)" class="w-full border border-slate-300 rounded-lg px-2 py-1 text-xs font-bold bg-white" />
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function savePaymentAndShippingSettings(e) {
+      e.preventDefault();
+      appState.settings.enableD17 = Boolean(document.getElementById('cfg-d17')?.checked);
+      appState.settings.enableFlouci = Boolean(document.getElementById('cfg-flouci')?.checked);
+      appState.settings.defaultShipping = Math.max(0, Number(document.getElementById('cfg-def-ship')?.value) || 0);
+      appState.settings.freeShippingThreshold = Math.max(0, Number(document.getElementById('cfg-free-ship')?.value) || 0);
+
+      safeWrite('doshop_store_settings', appState.settings);
+      pushActivityLog('تحديث إعدادات الدفع (D17/Flouci) والشحن');
+      renderCartDrawer();
+      showToast('تم حفظ إعدادات الدفع والشحن');
+    }
+
+    function setGovernorateOverride(govName, rawVal) {
+      if (!appState.settings.govOverrides) appState.settings.govOverrides = {};
+      if (rawVal === '' || rawVal === null) {
+        delete appState.settings.govOverrides[govName];
+      } else {
+        appState.settings.govOverrides[govName] = Math.max(0, Number(rawVal) || 0);
+      }
+      safeWrite('doshop_store_settings', appState.settings);
+      renderCartDrawer();
+      showToast(`تم تحديث شحن ولاية ${govName}`);
+    }
+
+    function downloadStoreBackupJSON() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        products: appState.products,
+        orders: appState.orders,
+        carriers: appState.carriers,
+        admins: appState.admins,
+        settings: appState.settings
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'doshop-backup.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('تم تحميل النسخة الاحتياطية JSON');
+    }
+
+    function downloadCSVFile(filename, rows) {
+      const csvContent = '\uFEFF' + rows.map((r) =>
+        r.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')
+      ).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`تم تصدير ${filename}`);
+    }
+
+    // =========================================================================
+    // 10. INITIALIZATION
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      renderHeaderMeta();
+      renderHeroAndBento();
+      startFlashCountdown();
+      renderFlashDeals();
+      renderSidebarFilters();
+      runStoreFilters();
+      renderCartDrawer();
+    });
+  </script>
+</body>
+</html>
